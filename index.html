@@ -112,7 +112,7 @@
 </div>`;
     }
 
-    function display_thread(board, thread) {
+    async function display_thread(board, thread) {
         var posts = await get_thread_posts(board, thread.no);
         display_post(board, thread.no, posts[0]);
     }
@@ -121,9 +121,7 @@
         var current = await get_popular_b_threads();
         console.log({current});
 
-        var first = current[0];
-        console.log({first});
-        display_thread(first);
+        await display_thread.all(current);
     }
 
     function main() {
