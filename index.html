@@ -70,10 +70,10 @@
         var current = await get_popular_b_threads();
         console.log({current});
 
-        var first = await get_thread_posts("b", current[0].no);
+        var first = current[0];
         console.log({first});
-
-        display_post(first.no, first[0]);
+        var first_posts = await get_thread_posts("b", first.no);
+        display_post("b", first.no, first_posts[0]);
     }
 
     function main() {
