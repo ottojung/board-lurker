@@ -38,16 +38,23 @@
     }
 
     async function get_thread_posts(board, thread_id) {
-        var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.toString() + ".json");
-        var json = await response.json();
-        return json.posts;
+        try {
+            var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.toString() + ".json");
+            var json = await response.json();
+            return json.posts;
+        } catch {
+            return null;
+        }
     }
 
-    async function get_popular_b_threads() {
-        var threads = await get_threads("b");
-        var popular = threads.filter(thread => thread.replies > 290);
+    async function get_filtered_by_reply_count(board, count) {
+        var threads = await get_threads(board);
+        var popular = threads.filter(thread => thread.replies > count);
         return popular;
     }
+
+    var get_popular_b_threads = () => get_filtered_by_reply_count("b", 290);
+    var get_popular_pol_threads = () => get_filtered_by_reply_count("pol", 300);
 
     function make_posts_obs(posts) {
         var ret = {};
@@ -192,13 +199,17 @@
     var all_threads = {};
 
     async function main_loop() {
-        var current = await get_popular_b_threads();
+        var list = [get_popular_b_threads(), get_popular_pol_threads()];
+        var current = (await Promise.all(list)).flat();
+
         var any_new = false;
         for (const thread of current) {
             if (!all_threads[thread.no]) {
                 thread.posts = await get_thread_posts("b", thread.no);
-                all_threads[thread.no] = thread;
-                any_new = true;
+                if (thread.posts) {
+                    all_threads[thread.no] = thread;
+                    any_new = true;
+                }
             }
         }
 
