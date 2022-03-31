@@ -151,9 +151,8 @@
             if (comment) {
                 var match = comment.matchAll(responses_regex);
                 for (const m of match) {
-                    if (m == comment) { continue; }
-                    var resto = parseInt(m);
-                    obj[resto].my_replies_count += 1;
+                    const to = m[1];
+                    obj[to].my_replies_count += 1;
                 }
             }
         }
