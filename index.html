@@ -143,13 +143,13 @@
         display_post(false, board, thread_id, post);
     }
 
-    var responses_regex = /a href="#p(\d+)/;
+    var responses_regex = /a href="#p(\d+)/g;
 
     function rank_posts_obj(obj) {
         for (const [key, value] of Object.entries(obj)) {
             var comment = value.com;
             if (comment) {
-                var match = responses_regex.matchAll(comment);
+                var match = comment.matchAll(responses_regex);
                 for (const m of match) {
                     if (m == comment) { continue; }
                     var resto = parseInt(m);
