@@ -164,10 +164,17 @@
 
     async function main_loop() {
         var current = await get_popular_b_threads();
+        var any_new = false;
         for (const thread of current) {
             if (!all_threads[thread.no]) {
                 all_threads[thread.no] = thread;
-                display_thread("b", thread);
+                any_new = true;
+            }
+        }
+
+        if (any_new) {
+            for (const [k, v] of Object.entries(all_threads)) {
+                display_thread("b", v);
             }
         }
     }
