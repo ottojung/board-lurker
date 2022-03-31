@@ -102,7 +102,6 @@
     }
 
     function display_post(op_q, board, thread_id, post) {
-        console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         var comment = post.com ? post.com.toString() : '';
         var replyCount = post.my_replies_count ? `<span class="nameBlock"> (${post.my_replies_count}) </span>` : '';
