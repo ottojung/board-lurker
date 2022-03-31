@@ -158,6 +158,11 @@
         }
     }
 
+    function rank_posts(posts) {
+        var obj = make_posts_obs(posts);
+        rank_posts_obj(obj);
+    }
+
     function compare_numbers(a, b) {
         if (a == 0) { return 0; }
         if (a < b) { return 1; }
@@ -167,9 +172,7 @@
     var replies_to_display = 5;
 
     function display_posts(board, thread, posts) {
-        var obj = make_posts_obs(posts);
-        rank_posts_obj(obj);
-        var sorted = Object.entries(obj).map(([k, v]) => v).sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
+        var sorted = posts.sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
         var to_display = sorted.slice(1, replies_to_display);
         for (const post of to_display) {
             display_reply_post(board, thread.no, post);
@@ -177,6 +180,7 @@
     }
 
     async function display_thread(board, thread) {
+        rank_posts(thread.posts);
         display_op_post(board, thread.no, thread.posts[0]);
         display_posts(board, thread, thread.posts);
         append_delimiter_to_thread_div();
