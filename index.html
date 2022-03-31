@@ -56,7 +56,12 @@
     }
 
     var get_popular_b_threads = () => get_filtered_by_reply_count("b", 290);
+    var get_popular_bant_threads = () => get_filtered_by_reply_count("bant", 290);
     var get_popular_pol_threads = () => get_filtered_by_reply_count("pol", 320);
+    var get_popular_g_threads = () => get_filtered_by_reply_count("g", 290);
+    var get_popular_sci_threads = () => get_filtered_by_reply_count("sci", 290);
+    var get_popular_sci_threads = () => get_filtered_by_reply_count("sci", 290);
+    var get_popular_int_threads = () => get_filtered_by_reply_count("int", 290);
 
     function make_posts_obs(posts) {
         var ret = {};
@@ -110,7 +115,6 @@
     }
 
     function display_post(op_q, board, thread_id, post) {
-        console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         var comment = post.com ? post.com.toString() : '';
         var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
@@ -209,7 +213,7 @@
     var all_threads = {};
 
     async function main_loop() {
-        var list = [get_popular_b_threads(), get_popular_pol_threads()];
+        var list = [get_popular_b_threads(), get_popular_pol_threads(), get_popular_g_threads()];
         var current = (await Promise.all(list)).flat();
 
         var any_new = false;
