@@ -60,6 +60,7 @@
     }
 
     function display_post(board, thread_id, post) {
+        console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         var div = get_thread_div();
         div.innerHTML += `
@@ -79,10 +80,10 @@
 
       <div class="file" id="f875428639">
         <div class="fileText" id="fT875428639">
-          File: <a href="https://i.4cdn.org/b/${post.filename}${post.ext}" target="_blank">1700605331.jpg</a> (45 KB, 380x725)
+          File: <a href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">${post.filename}${post.ext}</a>
         </div>
-        <a class="fileThumb" href="https://i.4cdn.org/b/${post.filename}${post.ext}" target="_blank">
-        <img src="https://i.4cdn.org/b/${post.filename}s${post.ext}" alt="" data-md5="" style="" loading="lazy"><div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">45 KB JPG</div></a></div>
+        <a class="fileThumb" href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">
+        <img src="https://i.4cdn.org/b/${post.tim}s${post.ext}" alt="" data-md5="" style="" loading="lazy"><div data-tip="" data-tip-cb="mShowFull" class="mFileInfo mobile">45 KB JPG</div></a></div>
 
       <div ${post.com.toString()} </div>
     </div>
