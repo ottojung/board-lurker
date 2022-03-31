@@ -47,11 +47,27 @@
         return popular;
     }
 
+    var thread_div = null;
+    function get_thread_div() {
+        if (thread_div == null) {
+            thread_div = document.getElementsByClassName("thread")[0];
+        }
+        return thread_div;
+    }
+
+    function display_post(comment) {
+        var div = get_thread_div();
+        div.innerHTML += 'hello there from ' + comment.no;
+    }
+
     async function main_loop() {
         var current = await get_popular_b_threads();
         console.log({current});
+
         var first = await get_thread_posts("b", current[0].no);
         console.log({first});
+
+        display_post(first[0]);
     }
 
     function main() {
