@@ -87,11 +87,11 @@
         append_html_to_thread_div("</br><hr></br>");
     }
 
-    function display_post(board, thread_id, post) {
+    function display_post(op_q, board, thread_id, post) {
         console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         append_html_to_thread_div(`
-<div class="postContainer opContainer">
+<div class="postContainer ${op_q ? 'opContainter' : 'replyContainer'}">
   <div class="sideArrows"></div>
     <div class="post reply">
       <div class="postInfo desktop">
@@ -120,9 +120,17 @@
 </div>`);
     }
 
+    function display_op_post(board, thread_id, post) {
+        display_post(true, board, thread_id, post);
+    }
+
+    function display_reply_post(board, thread_id, post) {
+        display_post(false, board, thread_id, post);
+    }
+
     async function display_thread(board, thread) {
         var posts = await get_thread_posts(board, thread.no);
-        display_post(board, thread.no, posts[0]);
+        display_op_post(board, thread.no, posts[0]);
         append_delimiter_to_thread_div();
     }
 
