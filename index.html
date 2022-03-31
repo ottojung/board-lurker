@@ -20,7 +20,13 @@
         return joined;
     }
 
-    get_threads("b").then(threads => console.log({threads}));
+    async function main() {
+        var threads = await get_threads("b");
+
+        console.log({threads});
+    }
+
+    main();
 
   </script>
 
