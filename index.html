@@ -58,6 +58,7 @@
     function get_post_link(board, thread_id, post_id) {
         switch (board) {
         case "b":
+        case "bant":
             return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
         case "pol":
         case "adv":
