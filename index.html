@@ -187,7 +187,7 @@
         var sorted = posts.sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
         var i = 0;
         while (i < replies_to_display) {
-            var post posts[i];
+            var post = posts[i];
             if (post.no == posts[0].no) { continue; }
             display_reply_post(board, thread.no, post);
             i += 1;
