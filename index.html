@@ -55,10 +55,15 @@
         return thread_div;
     }
 
-    function display_post(comment) {
+    function get_post_link(board, thread_id, post_id) {
+        return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+    }
+
+    function display_post(board, thread_id, post) {
+        var link = get_post_link(board, thread_id, post.no);
         var div = get_thread_div();
         div.innerHTML += `<div class="postContainer replyContainer"> <div class="sideArrows"></div> <div class="post reply">
-<div class="postInfo desktop"> <span class="nameBlock"><span class="name"> ${comment.name} </span></span> <span class="dateTime">${comment.now}</span> <span class="postNum desktop"><a href="#p${comment.no.toString()}" title="Link to this post">No.</a><a href="javascript:quote('${comment.no.toString()}');">${comment.no.toString()}</a></span> </div> ${comment.com.toString()} </div></div>`;
+<div class="postInfo desktop"> <span class="nameBlock"><span class="name"> ${post.name} </span></span> <span class="dateTime">${post.now}</span> <span class="postNum desktop"><a href="${link}" title="Link to this post">No.</a><a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a></span> </div> ${post.com.toString()} </div></div>`;
     }
 
     async function main_loop() {
@@ -68,7 +73,7 @@
         var first = await get_thread_posts("b", current[0].no);
         console.log({first});
 
-        display_post(first[0]);
+        display_post(first.no, first[0]);
     }
 
     function main() {
