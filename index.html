@@ -102,6 +102,7 @@
         console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         var comment = post.com ? post.com.toString() : '';
+        var replyCount = post.my_replies_count ? `<span class="nameBlock"> ${post.my_replies_count} </span>` : '';
         var file = post.filename ? `
 <div class="file">
   <div class="fileText">
@@ -120,6 +121,7 @@
         <span class="nameBlock">
           <span class="name"> ${post.name} </span>
         </span>
+        ${replyCount}
         <span class="dateTime">${post.now}</span>
         <span class="postNum desktop">
           <a href="${link}" title="Link to this post">No.</a>
