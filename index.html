@@ -101,6 +101,7 @@
     function display_post(op_q, board, thread_id, post) {
         console.log({post});
         var link = get_post_link(board, thread_id, post.no);
+        var comment = post.com ? post.com.toString() : '';
         append_html_to_thread_div(`
 <div class="postContainer ${op_q ? 'opContainter' : 'replyContainer'}">
   <div class="sideArrows"></div>
@@ -125,7 +126,7 @@
         </a>
       </div>
 
-      <div> ${post.com.toString()} </div>
+      <div> ${comment} </div>
     </div>
   </div>
 </div>`);
