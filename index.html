@@ -62,6 +62,7 @@
     var get_popular_sci_threads = () => get_filtered_by_reply_count("sci", 290);
     var get_popular_sci_threads = () => get_filtered_by_reply_count("sci", 290);
     var get_popular_int_threads = () => get_filtered_by_reply_count("int", 290);
+    var get_popular_t_threads = () => get_filtered_by_reply_count("int", 290);
 
     function make_posts_obs(posts) {
         var ret = {};
@@ -213,7 +214,14 @@
     var all_threads = {};
 
     async function main_loop() {
-        var list = [get_popular_b_threads(), get_popular_pol_threads(), get_popular_g_threads()];
+        var bl = (board, limit) => get_filtered_by_reply_count(board, limit);
+        var list = [bl("pol", 350),
+                    bl("bant", 290),
+                    bl("t", 290),
+                    bl("g", 290),
+                    bl("sci", 290),
+                    // bl("int", 290),
+                    bl("b", 290)];
         var current = (await Promise.all(list)).flat();
 
         var any_new = false;
