@@ -4,10 +4,23 @@
 
   <script>
 
-    var threads = 0;
-    fetch("https://a.4cdn.org/b/threads.json").then(result => { threads = result; });
+    async function get_threads(board) {
+        var response = await fetch("https://a.4cdn.org/" + board + "/threads.json");
+        var json = await response.json();
 
-    console.log({threads});
+        var joined = [];
+
+        for (var i = 0; i < json.length; i++) {
+            var threads = json[i].threads;
+            for (var k = 0; k < threads.length; k++) {
+                joined.push(threads[k]);
+            }
+        }
+
+        return joined;
+    }
+
+    get_threads("b").then(threads => console.log({threads}));
 
   </script>
 
