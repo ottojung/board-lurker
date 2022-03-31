@@ -121,7 +121,7 @@
         var current = await get_popular_b_threads();
         console.log({current});
 
-        await display_thread.all(current);
+        await Promise.all(current.map(thread => display_thread("b", thread)));
     }
 
     function main() {
