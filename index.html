@@ -145,9 +145,16 @@
 
     function rank_posts_obj(obj) {
         for (const [key, value] of Object.entries(obj)) {
-            var resto = value.resto;
-            if (resto && resto > 0) {
-                obj[resto].my_replies_count += 1;
+            var comment = value.com;
+            if (comment) {
+                var responses_regex = /a href="#p(\d+)/;
+                var match = responses_regex.exec(comment);
+                do {
+                    var resto = number(match[1]);
+                    if (resto && resto > 0) {
+                        obj[resto].my_replies_count += 1;
+                    }
+                } while((match = responses_regex.exec(comment)) !== null);
             }
         }
     }
