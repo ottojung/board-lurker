@@ -22,8 +22,9 @@
 
     async function main() {
         var threads = await get_threads("b");
+        var popular = threads.filter(thread => thread.replies > 200);
 
-        console.log({threads});
+        console.log({popular});
     }
 
     main();
