@@ -152,12 +152,18 @@
         }
     }
 
+    function compare_numbers(a, b) {
+        if (a == 0) { return 0; }
+        if (a < b) { return 1; }
+        return -1;
+    }
+
     var replies_to_display = 5;
 
     function display_posts(board, thread, posts) {
         var obj = make_posts_obs(posts);
         rank_posts_obj(obj);
-        var sorted = Object.entries(obj).map(([k, v]) => v).sort((a, b) => a.my_replies_count < b.my_replies_count);
+        var sorted = Object.entries(obj).map(([k, v]) => v).sort((a, b) => compare_numbers(b.my_replies_count, a.my_replies_count));
         var to_display = sorted.slice(1, replies_to_display);
         for (const post of to_display) {
             display_reply_post(board, thread.no, post);
@@ -184,7 +190,7 @@
         }
 
         if (any_new) {
-            var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => a.posts[0].time < b.posts[0].time).reverse();
+            var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
             for (const thread of threads) {
                 display_thread("b", thread);
             }
