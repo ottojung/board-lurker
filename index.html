@@ -93,14 +93,18 @@
 </div>`;
     }
 
+    function display_thread(board, thread) {
+        var posts = await get_thread_posts(board, thread.no);
+        display_post(board, thread.no, posts[0]);
+    }
+
     async function main_loop() {
         var current = await get_popular_b_threads();
         console.log({current});
 
         var first = current[0];
         console.log({first});
-        var first_posts = await get_thread_posts("b", first.no);
-        display_post("b", first.no, first_posts[0]);
+        display_thread(first);
     }
 
     function main() {
