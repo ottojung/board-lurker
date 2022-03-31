@@ -56,7 +56,12 @@
     }
 
     function get_post_link(board, thread_id, post_id) {
-        return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+        switch (board) {
+        case "b":
+            return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+        default:
+            return `no board "/${board}/" archives`;
+        }
     }
 
     function display_post(board, thread_id, post) {
