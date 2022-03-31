@@ -57,7 +57,8 @@
 
     function display_post(comment) {
         var div = get_thread_div();
-        div.innerHTML += `<div class="postContainer replyContainer"> ${comment.toString()} </div>`;
+        div.innerHTML += `<div class="postContainer replyContainer"> <div class="sideArrows"></div> <div class="post reply">
+<div class="postInfo desktop"> <span class="nameBlock"><span class="name"> ${comment.name} </span></span> </div> ${comment.com.toString()} </div></div>`;
     }
 
     async function main_loop() {
