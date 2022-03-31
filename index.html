@@ -20,11 +20,19 @@
         return joined;
     }
 
-    async function main() {
+    async function get_popular_b_threads() {
         var threads = await get_threads("b");
         var popular = threads.filter(thread => thread.replies > 200);
+        return popular;
+    }
 
-        console.log({popular});
+    async function main_loop() {
+        var current = await get_popular_b_threads();
+        console.log({current});
+    }
+
+    function main() {
+        main_loop().then(_ => setInterval(main, 1000));
     }
 
     main();
