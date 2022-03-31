@@ -78,11 +78,15 @@
         }
     }
 
+    function append_html_to_thread_div(html) {
+        var div = get_thread_div();
+        div.innerHTML += html;
+    }
+
     function display_post(board, thread_id, post) {
         console.log({post});
         var link = get_post_link(board, thread_id, post.no);
-        var div = get_thread_div();
-        div.innerHTML += `
+        append_html_to_thread_div(`
 <div class="postContainer replyContainer">
   <div class="sideArrows"></div>
     <div class="post reply">
@@ -109,12 +113,14 @@
       <div> ${post.com.toString()} </div>
     </div>
   </div>
-</div>`;
+</div>`);
     }
 
     async function display_thread(board, thread) {
         var posts = await get_thread_posts(board, thread.no);
         display_post(board, thread.no, posts[0]);
+
+        append_html_to_thread_div("</br><hr></br>");
     }
 
     async function main_loop() {
