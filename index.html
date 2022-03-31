@@ -55,15 +55,6 @@
         return popular;
     }
 
-    var get_popular_b_threads = () => get_filtered_by_reply_count("b", 290);
-    var get_popular_bant_threads = () => get_filtered_by_reply_count("bant", 290);
-    var get_popular_pol_threads = () => get_filtered_by_reply_count("pol", 320);
-    var get_popular_g_threads = () => get_filtered_by_reply_count("g", 290);
-    var get_popular_sci_threads = () => get_filtered_by_reply_count("sci", 290);
-    var get_popular_sci_threads = () => get_filtered_by_reply_count("sci", 290);
-    var get_popular_int_threads = () => get_filtered_by_reply_count("int", 290);
-    var get_popular_t_threads = () => get_filtered_by_reply_count("int", 290);
-
     function make_posts_obs(posts) {
         var ret = {};
         for (var i = 0; i < posts.length; i++) {
