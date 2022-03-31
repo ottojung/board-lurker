@@ -1,4 +1,23 @@
 
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noarchive">
+  <meta name="keywords" content="imageboard,anonymous,random,memes,have,Desi">
+  <meta name="referrer" content="origin">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="shortcut icon" href="https://s.4cdn.org/image/favicon.ico">
+  <link rel="stylesheet" title="switch" href="https://s.4cdn.org/css/yotsubanew.704.css">
+  <link rel="alternate stylesheet" style="text/css" href="https://s.4cdn.org/css/yotsubanew.704.css" title="Yotsuba New">
+  <link rel="alternate stylesheet" style="text/css" href="https://s.4cdn.org/css/yotsubluenew.704.css" title="Yotsuba B New">
+  <link rel="alternate stylesheet" style="text/css" href="https://s.4cdn.org/css/futabanew.704.css" title="Futaba New">
+  <link rel="alternate stylesheet" style="text/css" href="https://s.4cdn.org/css/burichannew.704.css" title="Burichan New">
+  <link rel="alternate stylesheet" style="text/css" href="https://s.4cdn.org/css/photon.704.css" title="Photon">
+  <link rel="alternate stylesheet" style="text/css" href="https://s.4cdn.org/css/tomorrow.704.css" title="Tomorrow">
+  <link rel="stylesheet" href="https://s.4cdn.org/css/yotsubamobile.704.css">
+  <link rel="canonical" href="http://boards.4chan.org/b/thread/875428042/why-dont-you-have-a-desi-gf">
+  <link rel="alternate" title="RSS feed" href="/b/index.rss" type="application/rss+xml">
+  <title>KEK</title>
+</head>
 
 <body>
 
@@ -21,7 +40,7 @@
     }
 
     async function get_thread_posts(board, thread_id) {
-        var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.to_string() + ".json");
+        var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.toString() + ".json");
         var json = await response.json();
         return json.posts;
     }
@@ -35,6 +54,8 @@
     async function main_loop() {
         var current = await get_popular_b_threads();
         console.log({current});
+        var first = await get_thread_posts("b", current[0].no);
+        console.log({first});
     }
 
     function main() {
