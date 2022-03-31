@@ -57,7 +57,7 @@
 
     function display_post(comment) {
         var div = get_thread_div();
-        div.innerHTML += 'hello there from ' + comment.no;
+        div.innerHTML += `<div class="postContainer replyContainer"> ${comment.toString()} </div>`;
     }
 
     async function main_loop() {
