@@ -30,7 +30,9 @@
         for (var i = 0; i < json.length; i++) {
             var threads = json[i].threads;
             for (var k = 0; k < threads.length; k++) {
-                joined.push(threads[k]);
+                var thread = threads[k];
+                thread.board = board;
+                joined.push(thread);
             }
         }
 
@@ -54,7 +56,7 @@
     }
 
     var get_popular_b_threads = () => get_filtered_by_reply_count("b", 290);
-    var get_popular_pol_threads = () => get_filtered_by_reply_count("pol", 300);
+    var get_popular_pol_threads = () => get_filtered_by_reply_count("pol", 200);
 
     function make_posts_obs(posts) {
         var ret = {};
@@ -115,10 +117,10 @@
         var file = post.filename ? `
 <div class="file">
   <div class="fileText">
-     File: <a href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">${post.filename}${post.ext}</a>
+     File: <a href="https://i.4cdn.org/${board}/${post.tim}${post.ext}" target="_blank">${post.filename}${post.ext}</a>
   </div>
-  <a class="fileThumb" href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">
-    <img src="https://i.4cdn.org/b/${post.tim}s.jpg" alt="" data-md5="" style="" loading="lazy">
+  <a class="fileThumb" href="https://i.4cdn.org/${board}/${post.tim}${post.ext}" target="_blank">
+    <img src="https://i.4cdn.org/${board}/${post.tim}s.jpg" alt="" data-md5="" style="" loading="lazy">
   </a>
 </div>` : '';
 
@@ -205,7 +207,7 @@
         var any_new = false;
         for (const thread of current) {
             if (!all_threads[thread.no]) {
-                thread.posts = await get_thread_posts("b", thread.no);
+                thread.posts = await get_thread_posts(thread.board, thread.no);
                 if (thread.posts) {
                     all_threads[thread.no] = thread;
                     any_new = true;
@@ -216,7 +218,7 @@
         if (any_new) {
             var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
             for (const thread of threads) {
-                display_thread("b", thread);
+                display_thread(thread.board, thread);
             }
         }
     }
