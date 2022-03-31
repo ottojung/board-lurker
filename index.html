@@ -20,6 +20,12 @@
         return joined;
     }
 
+    async function get_thread_posts(board, thread_id) {
+        var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.to_string() + ".json");
+        var json = await response.json();
+        return json.posts;
+    }
+
     async function get_popular_b_threads() {
         var threads = await get_threads("b");
         var popular = threads.filter(thread => thread.replies > 200);
