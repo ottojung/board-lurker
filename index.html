@@ -59,6 +59,8 @@
         switch (board) {
         case "b":
             return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+        case "pol":
+            throw new Exception("TODO: pol archives");
         default:
             return `no board "/${board}/" archives`;
         }
