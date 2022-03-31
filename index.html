@@ -172,9 +172,7 @@
         }
 
         if (any_new) {
-            var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => {
-                return a.posts[0].time < b.posts[0].time;
-            }).reverse();
+            var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => a.posts[0].time < b.posts[0].time).reverse();
 
             for (const thread of threads) {
                 display_thread("b", thread);
