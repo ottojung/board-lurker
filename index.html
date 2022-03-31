@@ -127,7 +127,7 @@
         append_html_to_thread_div(`
 <div class="postContainer ${op_q ? 'opContainter' : 'replyContainer'}">
   <div class="sideArrows"></div>
-    <div class="post reply">
+    <div class="post ${op_q ? 'op' : 'reply'}">
       <div class="postInfo desktop">
         ${boardTag}
         ${replyCount}
