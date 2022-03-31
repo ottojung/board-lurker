@@ -45,7 +45,7 @@
 
     async function get_popular_b_threads() {
         var threads = await get_threads("b");
-        var popular = threads.filter(thread => thread.replies > 300);
+        var popular = threads.filter(thread => thread.replies > 290);
         return popular;
     }
 
@@ -103,6 +103,7 @@
     function display_post(op_q, board, thread_id, post) {
         var link = get_post_link(board, thread_id, post.no);
         var comment = post.com ? post.com.toString() : '';
+        var boardTag = op_q ? `<b style='color:blue'> /${board}/ </b>` : '';
         var replyCount = post.my_replies_count ? `<span class="nameBlock"> (${post.my_replies_count}) </span>` : '';
         var file = post.filename ? `
 <div class="file">
@@ -119,6 +120,7 @@
   <div class="sideArrows"></div>
     <div class="post reply">
       <div class="postInfo desktop">
+        ${boardTag}
         ${replyCount}
         <span class="nameBlock">
           <span class="name"> ${post.name} </span>
