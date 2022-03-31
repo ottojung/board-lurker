@@ -60,6 +60,17 @@
         case "b":
             return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
         case "pol":
+        case "adv":
+        case "f":
+        case "hr":
+        case "o":
+        case "pol":
+        case "s4s":
+        case "sp":
+        case "tg":
+        case "trv":
+        case "tv":
+        case "x":
             return `https://4plebs.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
         default:
             return `no board "/${board}/" archives`;
