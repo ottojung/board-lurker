@@ -22,7 +22,7 @@
   <script>
 
     async function get_threads(board) {
-        var response = await fetch("https://a.4cdn.org/" + board + "/threads.json");
+        var response = await fetch("https://a.4cdn.org/" + board + "/threads.json", { mode: 'no-cors', headers: { 'Content-Type': 'application/json' } });
         var json = await response.json();
 
         var joined = [];
@@ -41,7 +41,7 @@
 
     async function get_thread_posts(board, thread_id) {
         try {
-            var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.toString() + ".json");
+            var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.toString() + ".json", { mode: 'no-cors', headers: { 'Content-Type': 'application/json' } });
             var json = await response.json();
             return json.posts;
         } catch {
