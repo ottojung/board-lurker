@@ -153,9 +153,7 @@
                 for (const m of match) {
                     if (m == comment) { continue; }
                     var resto = parseInt(m);
-                    if (resto && resto > 0) {
-                        obj[resto].my_replies_count += 1;
-                    }
+                    obj[resto].my_replies_count += 1;
                 }
             }
         }
