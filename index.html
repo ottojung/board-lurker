@@ -165,14 +165,16 @@
         var any_new = false;
         for (const thread of current) {
             if (!all_threads[thread.no]) {
-                thread.posts = get_thread_posts("b", thread.no);
+                thread.posts = await get_thread_posts("b", thread.no);
                 all_threads[thread.no] = thread;
                 any_new = true;
             }
         }
 
         if (any_new) {
-            var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => a.posts[0].time < b.posts[0].time);
+            var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => {
+                return a.posts[0].time < b.posts[0].time;
+            });
             console.log({threads});
             for (const thread of threads) {
                 display_thread("b", thread);
