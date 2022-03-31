@@ -99,7 +99,6 @@
     }
 
     function display_post(op_q, board, thread_id, post) {
-        console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         append_html_to_thread_div(`
 <div class="postContainer ${op_q ? 'opContainter' : 'replyContainer'}">
@@ -173,8 +172,9 @@
         }
 
         if (any_new) {
-            for (const [k, v] of Object.entries(all_threads).reverse()) {
-                display_thread("b", v);
+            var threads = Object.entries(all_threads).sort(([ak, a], [bk, b]) => a.time < b.time).map(([k, v]) => v);
+            for (const thread of threads) {
+                display_thread("b", thread);
             }
         }
     }
