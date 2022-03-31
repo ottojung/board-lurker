@@ -110,8 +110,10 @@
     }
 
     function display_post(op_q, board, thread_id, post) {
+        console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         var comment = post.com ? post.com.toString() : '';
+        var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
         var boardTag = op_q ? `<b style='color:blue'> /${board}/ </b>` : '';
         var replyCount = post.my_replies_count ? `<span class="nameBlock"> (${post.my_replies_count}) </span>` : '';
         var file = post.filename ? `
@@ -130,6 +132,7 @@
     <div class="post ${op_q ? 'op' : 'reply'}">
       <div class="postInfo desktop">
         ${boardTag}
+        ${subject}
         ${replyCount}
         <span class="nameBlock">
           <span class="name"> ${post.name} </span>
