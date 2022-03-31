@@ -160,11 +160,16 @@
         append_delimiter_to_thread_div();
     }
 
+    var all_threads = {};
+
     async function main_loop() {
         var current = await get_popular_b_threads();
-        console.log({current});
-
-        await Promise.all(current.map(thread => display_thread("b", thread)));
+        for (const thread of current) {
+            if (!all_threads[thread.no]) {
+                all_threads[thread.no] = thread;
+                display_thread("b", thread);
+            }
+        }
     }
 
     function main() {
