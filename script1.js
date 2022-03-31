@@ -1,1 +1,0 @@
-var style_group = "nws_style",cssVersion = 704,jsVersion = 1054,comlen = 2000,maxFilesize = 2097152,maxLines = 50,clickable_ids = 1,cooldowns = {"thread":90,"reply":30,"image":30},tailSize = 50;var unique_ips = 44;var t_captcha = true;var check_for_block = 1;
