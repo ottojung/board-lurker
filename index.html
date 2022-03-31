@@ -102,6 +102,16 @@
         console.log({post});
         var link = get_post_link(board, thread_id, post.no);
         var comment = post.com ? post.com.toString() : '';
+        var file = post.filename ? `
+<div class="file">
+  <div class="fileText">
+     File: <a href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">${post.filename}${post.ext}</a>
+  </div>
+  <a class="fileThumb" href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">
+    <img src="https://i.4cdn.org/b/${post.tim}s.jpg" alt="" data-md5="" style="" loading="lazy">
+  </a>
+</div>` : '';
+
         append_html_to_thread_div(`
 <div class="postContainer ${op_q ? 'opContainter' : 'replyContainer'}">
   <div class="sideArrows"></div>
@@ -116,16 +126,7 @@
           <a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a>
         </span>
       </div>
-
-      <div class="file">
-        <div class="fileText">
-          File: <a href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">${post.filename}${post.ext}</a>
-        </div>
-        <a class="fileThumb" href="https://i.4cdn.org/b/${post.tim}${post.ext}" target="_blank">
-          <img src="https://i.4cdn.org/b/${post.tim}s.jpg" alt="" data-md5="" style="" loading="lazy">
-        </a>
-      </div>
-
+      ${file}
       <div> ${comment} </div>
     </div>
   </div>
