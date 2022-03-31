@@ -139,10 +139,24 @@
         display_post(false, board, thread_id, post);
     }
 
+    function rank_posts_obj(obj) {
+        for (const [key, value] in Object.entries(obj)) {
+            var resto = value.resto;
+            if (resto && resto > 0) {
+                obj[resto].my_replies_count += 1;
+            }
+        }
+    }
+
+    function display_posts(board, thread, posts) {
+        var obj = make_posts_obs(posts);
+        rank_posts_obj(obj);
+    }
+
     async function display_thread(board, thread) {
         var posts = await get_thread_posts(board, thread.no);
         display_op_post(board, thread.no, posts[0]);
-        var posts_obj = make_posts_obs(posts);
+        display_posts(board, thread, posts);
         append_delimiter_to_thread_div();
     }
 
