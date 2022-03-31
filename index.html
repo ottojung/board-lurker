@@ -58,7 +58,7 @@
     function display_post(comment) {
         var div = get_thread_div();
         div.innerHTML += `<div class="postContainer replyContainer"> <div class="sideArrows"></div> <div class="post reply">
-<div class="postInfo desktop"> <span class="nameBlock"><span class="name"> ${comment.name} </span></span> </div> ${comment.com.toString()} </div></div>`;
+<div class="postInfo desktop"> <span class="nameBlock"><span class="name"> ${comment.name} </span></span> <span class="dateTime">${comment.now}</span> <span class="postNum desktop"><a href="#p${comment.no.toString()}" title="Link to this post">No.</a><a href="javascript:quote('${comment.no.toString()}');">${comment.no.toString()}</a></span> </div> ${comment.com.toString()} </div></div>`;
     }
 
     async function main_loop() {
