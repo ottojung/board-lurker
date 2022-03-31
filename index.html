@@ -45,7 +45,7 @@
 
     async function get_popular_b_threads() {
         var threads = await get_threads("b");
-        var popular = threads.filter(thread => thread.replies > 200);
+        var popular = threads.filter(thread => thread.replies > 300);
         return popular;
     }
 
