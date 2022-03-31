@@ -62,8 +62,24 @@
     function display_post(board, thread_id, post) {
         var link = get_post_link(board, thread_id, post.no);
         var div = get_thread_div();
-        div.innerHTML += `<div class="postContainer replyContainer"> <div class="sideArrows"></div> <div class="post reply">
-<div class="postInfo desktop"> <span class="nameBlock"><span class="name"> ${post.name} </span></span> <span class="dateTime">${post.now}</span> <span class="postNum desktop"><a href="${link}" title="Link to this post">No.</a><a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a></span> </div> ${post.com.toString()} </div></div>`;
+        div.innerHTML += `
+<div class="postContainer replyContainer">
+  <div class="sideArrows"></div>
+    <div class="post reply">
+      <div class="postInfo desktop">
+        <span class="nameBlock">
+          <span class="name"> ${post.name} </span>
+        </span>
+        <span class="dateTime">${post.now}</span>
+        <span class="postNum desktop">
+          <a href="${link}" title="Link to this post">No.</a>
+          <a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a>
+        </span>
+      </div>
+      <div ${post.com.toString()} </div>
+    </div>
+  </div>
+</div>`;
     }
 
     async function main_loop() {
