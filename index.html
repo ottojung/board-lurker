@@ -173,7 +173,7 @@
         }
 
         if (any_new) {
-            for (const [k, v] of Object.entries(all_threads)) {
+            for (const [k, v] of Object.entries(all_threads).reverse()) {
                 display_thread("b", v);
             }
         }
