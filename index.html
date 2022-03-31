@@ -185,11 +185,12 @@
 
     function display_posts(board, thread, posts) {
         var sorted = posts.sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
-        var to = Math.min(replies_to_display, i < posts.length);
-        for (var i = 0; i < to; i++) {
+        var k = replies_to_display;
+        for (var i = 0; i < posts.length; i++) {
             var post = posts[i];
             if (post.no !== posts[0].no) {
                 display_reply_post(board, thread.no, post);
+                if ((--k) == 0) { break; }
             }
         }
     }
