@@ -236,7 +236,9 @@
             if (event.keyCode === 13) {
                 event.preventDefault();
                 var text = filter_input.value;
-                init_filter_regex = new RegExp(text, "i");
+                if (text) {
+                    init_filter_regex = new RegExp(text, "i");
+                }
                 main_loop();
             }
         });
