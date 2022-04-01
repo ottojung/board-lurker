@@ -260,7 +260,10 @@
         });
     }
 
+    const min_replies_for_filter = 10;
+
     async function is_positively_filtered(thread) {
+        if (thread.replies < min_replies_for_filter) { return false; }
         if (!init_filter_regex) { return false; }
 
         var sub = thread.sub ? thread.sub : '';
