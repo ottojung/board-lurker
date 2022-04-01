@@ -242,9 +242,9 @@
     }
 
     async function ok_thread_q(thread) {
-        // if (await is_positively_filtered(thread)) {
-        //     return true;
-        // }
+        if (await is_positively_filtered(thread)) {
+            return true;
+        }
 
         switch (thread.board) {
         case "pol":
