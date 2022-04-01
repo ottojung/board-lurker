@@ -212,9 +212,13 @@
         append_delimiter_to_thread_div();
     }
 
+    async function reload_thread_posts(thread) {
+        thread.posts = await get_thread_posts(thread.board, thread.no);
+    }
+
     async function load_thread_posts(thread) {
         if (!thread.posts) {
-            thread.posts = await get_thread_posts(thread.board, thread.no);
+            reload_thread_posts(thread);
         }
         return thread;
     }
@@ -246,6 +250,7 @@
 
     async function ok_thread_q(thread) {
         if (await is_positively_filtered(thread)) {
+            await reload_thread_posts(thread);
             return true;
         }
 
