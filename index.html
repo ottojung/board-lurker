@@ -210,7 +210,7 @@
 
     async function load_thread_posts(thread) {
         if (thread.posts === null) {
-            thread.posts = await get_thread_posts(board, thread.no);
+            thread.posts = await get_thread_posts(thread.board, thread.no);
         }
         return thread;
     }
