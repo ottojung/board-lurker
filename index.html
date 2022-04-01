@@ -242,7 +242,7 @@
         case "x":
             return thread.replies > 290;
         default:
-            throw new Exception(`Uknown thread board "${thread.board}"`);
+            throw new Error(`Uknown thread board "${thread.board}"`);
         }
     }
 
