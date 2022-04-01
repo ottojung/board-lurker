@@ -113,9 +113,10 @@
         div.innerHTML = "";
     }
 
+    var display_buffer = [];
+
     function append_html_to_thread_div(html) {
-        var div = get_thread_div();
-        div.innerHTML += html;
+        display_buffer.push(html);
     }
 
     function append_delimiter_to_thread_div() {
@@ -229,11 +230,18 @@
         }
     }
 
-    async function display_thread(board, thread) {
+    function display_thread(board, thread) {
         rank_posts(thread.posts);
         display_op_post(thread);
         display_posts(board, thread, thread.posts);
         append_delimiter_to_thread_div();
+    }
+
+    function finalize_display() {
+        var div = get_thread_div();
+        var html = display_buffer.join('\n');
+        div.innerHTML = html;
+        display_buffer = [];
     }
 
     async function reload_thread_posts(thread) {
@@ -337,6 +345,7 @@
         for (const thread of threads) {
             display_thread(thread.board, thread);
         }
+        finalize_display();
     }
 
     function main() {
