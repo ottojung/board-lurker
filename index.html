@@ -215,7 +215,7 @@
         filter_input.addEventListener("keyup", function(event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
-                var text = filter_input.text();
+                var text = filter_input.value;
                 console.log({text});
             }
         });
