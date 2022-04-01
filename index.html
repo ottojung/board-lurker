@@ -230,7 +230,8 @@
         });
     }
 
-    function is_positively_filtered(thread) {
+    async function is_positively_filtered(thread) {
+        await load_thread_posts(thread);
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
         var text = sub + com;
@@ -238,10 +239,10 @@
         return text.match(init_filter_regex);
     }
 
-    function ok_thread_q(thread) {
-        if (is_positively_filtered(thread)) {
-            return true;
-        }
+    async function ok_thread_q(thread) {
+        // if (await is_positively_filtered(thread)) {
+        //     return true;
+        // }
 
         switch (thread.board) {
         case "pol":
@@ -278,8 +279,7 @@
         for (const thread of current) {
             if (!all_threads[thread.no]) {
                 all_threads[thread.no] = thread;
-                await load_thread_posts(thread);
-                if (ok_thread_q(thread)) {
+                if (await ok_thread_q(thread)) {
                     any_new = true;
                 }
             }
@@ -288,6 +288,7 @@
         if (any_new) {
             reset_thread_div_html();
             var filtered = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q);
+            await Promise.all(filtered.map(load_thread_posts));
             var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
             for (const thread of threads) {
                 display_thread(thread.board, thread);
