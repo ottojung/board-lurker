@@ -45,6 +45,7 @@
             var json = await response.json();
             return json.posts;
         } catch {
+            console.log({error: thread_id});
             return null;
         }
     }
@@ -228,19 +229,16 @@
         });
     }
 
-    function is_positively_filtered(thread) {
-        load_thread_posts(thread);
-        console.log(thread);
+    async function is_positively_filtered(thread) {
+        await load_thread_posts(thread);
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
         var text = sub + com;
-        console.log({sub, com, text, ent: Object.entries(thread)});
-        // return text.match(/Where are the/g);
-        return false;
+        return text.match(/Where are the/g);
     }
 
-    function ok_thread_q(thread) {
-        if (is_positively_filtered(thread)) {
+    async function ok_thread_q(thread) {
+        if (await is_positively_filtered(thread)) {
             return true;
         }
 
@@ -280,7 +278,7 @@
             if (!all_threads[thread.no]) {
                 all_threads[thread.no] = thread;
                 thread.posts = null;
-                if (ok_thread_q(thread)) {
+                if (await ok_thread_q(thread)) {
                     any_new = true;
                 }
             }
@@ -289,7 +287,6 @@
         if (any_new) {
             reset_thread_div_html();
             var filtered = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q);
-            await Promise.all(filtered.map(load_thread_posts));
             var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
             for (const thread of threads) {
                 display_thread(thread.board, thread);
