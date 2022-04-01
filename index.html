@@ -278,6 +278,7 @@
         switch (thread.board) {
         case "pol":
             return thread.replies > 350;
+        case "h":
         case "b":
         case "bant":
         case "adv":
@@ -302,7 +303,7 @@
     }
 
     async function main_loop() {
-        var list = ["pol", "bant", "t", "g", "sci", "lit", "b"];
+        var list = ["pol", "bant", "t", "g", "sci", "lit", "b", "h"];
         var poll = list.map(get_threads);
         var current = (await Promise.all(poll)).flat();
 
