@@ -203,7 +203,7 @@
     }
 
     async function load_thread_posts(thread) {
-        if (thread.posts === null) {
+        if (thread.posts === null || thread.posts === undefined) {
             thread.posts = await get_thread_posts(thread.board, thread.no);
             if (thread.posts) {
                 thread.sub = thread.posts[0].sub;
@@ -230,12 +230,13 @@
 
     function is_positively_filtered(thread) {
         load_thread_posts(thread);
-        console.log({thread});
+        console.log(thread);
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
         var text = sub + com;
-        console.log({sub, com, text, sub2: thread.sub, com2: thread.com});
-        return text.match(/Where are the/g);
+        console.log({sub, com, text, ent: Object.entries(thread)});
+        // return text.match(/Where are the/g);
+        return false;
     }
 
     function ok_thread_q(thread) {
