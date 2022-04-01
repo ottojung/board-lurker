@@ -203,6 +203,7 @@
     async function display_thread(board, thread) {
         rank_posts(thread.posts);
         display_op_post(board, thread.no, thread.posts[0]);
+        if (thread.posts === null) { thread.posts = get_thread_posts(board, thread.no); }
         display_posts(board, thread, thread.posts);
         append_delimiter_to_thread_div();
     }
@@ -236,12 +237,8 @@
         var any_new = false;
         for (const thread of current) {
             if (!all_threads[thread.no]) {
-                thread.posts = await get_thread_posts(thread.board, thread.no);
-                if (thread.posts) {
-                    all_threads[thread.no] = thread;
-                    any_new = true;
-                    console.log({thread});
-                }
+                all_threads[thread.no] = thread;
+                thread.posts = null;
             }
         }
 
