@@ -130,7 +130,7 @@
 
     function delete_thread(thread_id) {
         all_threads[thread_id].deleted = true;
-        main_loop();
+        redraw();
     }
 
     function display_post(op_q, board, thread_id, post) {
@@ -312,6 +312,17 @@
         }
     }
 
+    var last_ok_threads = null;
+
+    function redraw() {
+        reset_thread_div_html();
+        var filtered = last_ok_threads.filter(thread => !thread.deleted);
+        var sorted = filtered.sort((a, b) => compare_numbers(a.time, b.time));
+        for (const thread of sorted) {
+            display_thread(thread.board, thread);
+        }
+    }
+
     async function main_loop() {
         var list = ["pol", "bant", "t", "g", "sci", "lit", "b", "h"];
         var poll = list.map(get_threads);
@@ -323,20 +334,17 @@
             }
         }
 
-        var filtered = [];
+        last_ok_threads = [];
         for (const [k, thread] of Object.entries(all_threads)) {
             if (thread.deleted) { continue; }
             if (await ok_thread_q(thread)) {
-                filtered.push(thread);
+                last_ok_threads.push(thread);
                 await load_thread_posts(thread);
             }
         }
 
-        if (filtered.length === 0) { return; }
-        reset_thread_div_html();
-        var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
-        for (const thread of threads) {
-            display_thread(thread.board, thread);
+        if (last_ok_threads.length > 0) {
+            redraw();
         }
     }
 
