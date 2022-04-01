@@ -108,7 +108,7 @@
 
     function unixtime_to_string(unixtime) {
         var d = new Date(unixtime * 1000);
-        var dateStr = `${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        var dateStr = `${('0' + d.getDate()).slice(-2)} ${d.getHours()}:${('0' + d.getMinutes()).slice(-2)}:${('0' + d.getSeconds()).slice(-2)}`;
         return dateStr;
     }
 
