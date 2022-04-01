@@ -230,7 +230,7 @@
                 event.preventDefault();
                 var text = filter_input.value;
                 console.log({text});
-                init_filter_regex = new RegExp(text);
+                init_filter_regex = new RegExp(text, "i");
                 main_loop();
             }
         });
