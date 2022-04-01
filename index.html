@@ -214,7 +214,7 @@
 
     var all_threads = {};
     var filter_input = null;
-    var init_filter_regex = /Where are the/g;
+    var init_filter_regex = null;
 
     function init_filter() {
         filter_input = document.getElementById("my_filter");
@@ -229,6 +229,8 @@
     }
 
     async function is_positively_filtered(thread) {
+        if (!init_filter_regex) { return false; }
+
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
         var text = sub + ' ' + com;
