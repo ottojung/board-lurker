@@ -97,6 +97,10 @@
         }
     }
 
+    function reset_thread_div_html() {
+        div.innerHTML = "";
+    }
+
     function append_html_to_thread_div(html) {
         var div = get_thread_div();
         div.innerHTML += html;
@@ -229,6 +233,7 @@
         }
 
         if (any_new) {
+            reset_thread_div_html();
             var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
             for (const thread of threads) {
                 display_thread(thread.board, thread);
