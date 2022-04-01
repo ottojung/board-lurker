@@ -205,8 +205,10 @@
     async function load_thread_posts(thread) {
         if (thread.posts === null) {
             thread.posts = await get_thread_posts(thread.board, thread.no);
-            thread.sub = thread.posts[0].sub;
-            thread.com = thread.posts[0].com;
+            if (thread.posts) {
+                thread.sub = thread.posts[0].sub;
+                thread.com = thread.posts[0].com;
+            }
         }
         return thread;
     }
