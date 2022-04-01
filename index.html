@@ -275,8 +275,8 @@
         if (any_new) {
             reset_thread_div_html();
             var filtered = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q);
-            var with_posts = await Promise.all(filtered.map(load_thread_posts));
-            var threads = with_posts.sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
+            await Promise.all(filtered.map(load_thread_posts));
+            var threads = filtered.sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
             for (const thread of threads) {
                 display_thread(thread.board, thread);
             }
