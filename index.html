@@ -278,7 +278,6 @@
         switch (thread.board) {
         case "pol":
             return thread.replies > 350;
-        case "h":
         case "b":
         case "bant":
         case "adv":
@@ -297,6 +296,7 @@
         case "sci":
         case "lit":
             return thread.replies > 290;
+        case "h": return false;
         default:
             throw new Error(`Uknown thread board "${thread.board}"`);
         }
