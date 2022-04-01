@@ -212,7 +212,7 @@
 
     function check_filter() {
         if (filter_input === null) {
-            filter_input = document.getElementById("myInput");
+            filter_input = document.getElementById("my_filter");
             filter_input.addEventListener("keyup", function(event) {
                 if (event.keyCode === 13) {
                     event.preventDefault();
@@ -270,7 +270,7 @@
 </head>
 
 <body class="is_thread board_b yotsuba_new nws">
-  <input id="filter" placeholder="Positive filter RegEx here" submit=""/>
+  <input id="my_filter" placeholder="Positive filter RegEx here" submit=""/>
 
   <form name="delform" id="delform">
     <div class="board">
