@@ -208,6 +208,7 @@
             if (thread.posts) {
                 thread.sub = thread.posts[0].sub;
                 thread.com = thread.posts[0].com;
+                thread.time = thread.posts[0].time;
             }
         }
         return thread;
@@ -288,7 +289,7 @@
             reset_thread_div_html();
             var filtered = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q);
             await Promise.all(filtered.map(load_thread_posts));
-            var threads = filtered.sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
+            var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
             for (const thread of threads) {
                 display_thread(thread.board, thread);
             }
