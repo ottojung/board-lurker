@@ -203,7 +203,7 @@
     }
 
     async function load_thread_posts(thread) {
-        if (thread.posts === null || thread.posts === undefined) {
+        if (!thread.posts) {
             thread.posts = await get_thread_posts(thread.board, thread.no);
             if (thread.posts) {
                 thread.sub = thread.posts[0].sub;
