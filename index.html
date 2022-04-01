@@ -343,8 +343,13 @@
         var current = (await Promise.all(poll)).flat();
 
         for (const thread of current) {
-            if (!all_threads[thread.no]) {
+            const existing = all_threads[thread.no];
+            if (!existing) {
                 all_threads[thread.no] = thread;
+            } else {
+                for (const key of thread) {
+                    existing[key] = thread[key];
+                }
             }
         }
 
