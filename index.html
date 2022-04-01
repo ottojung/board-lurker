@@ -277,24 +277,25 @@
         var poll = list.map(get_threads);
         var current = (await Promise.all(poll)).flat();
 
-        var any_new = false;
         for (const thread of current) {
             if (!all_threads[thread.no]) {
                 all_threads[thread.no] = thread;
-                if (await ok_thread_q(thread)) {
-                    any_new = true;
-                }
             }
         }
 
-        if (any_new) {
-            reset_thread_div_html();
-            var filtered = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q);
-            await Promise.all(filtered.map(load_thread_posts));
-            var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
-            for (const thread of threads) {
-                display_thread(thread.board, thread);
+        reset_thread_div_html();
+        var filtered = [];
+        for (const [k, thread] of Object.entries(all_threads)) {
+            if (await ok_thread_q(thread)) {
+                filtered.push(thread);
             }
+        }
+
+        if (filtered.length === 0) { return; }
+        await Promise.all(filtered.map(load_thread_posts));
+        var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
+        for (const thread of threads) {
+            display_thread(thread.board, thread);
         }
     }
 
