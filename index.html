@@ -134,7 +134,7 @@
         var comment = post.com ? post.com.toString() : '';
         var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
         var boardTag = op_q ? `<b style='color:blue'> /${board}/ </b>` : '';
-        var replies_count = op_q ? post.my_replies_count : post.replies;
+        var replies_count = op_q ? post.replies : post.my_replies_count;
         var replyCount = replies_count ? `<span class="nameBlock"> (${replies_count}) </span>` : '';
         var file = post.filename ? `
 <div class="file">
