@@ -283,7 +283,6 @@
             }
         }
 
-        reset_thread_div_html();
         var filtered = [];
         for (const [k, thread] of Object.entries(all_threads)) {
             if (await ok_thread_q(thread)) {
@@ -294,6 +293,7 @@
         if (filtered.length === 0) { return; }
         await Promise.all(filtered.map(load_thread_posts));
         var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
+        reset_thread_div_html();
         for (const thread of threads) {
             display_thread(thread.board, thread);
         }
