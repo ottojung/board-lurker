@@ -22,7 +22,7 @@
   <script>
 
     async function get_threads(board) {
-        var response = await fetch("https://a.4cdn.org/" + board + "/threads.json");
+        var response = await fetch("https://a.4cdn.org/" + board + "/catalog.json");
         var json = await response.json();
 
         var joined = [];
@@ -233,11 +233,9 @@
     }
 
     async function is_positively_filtered(thread) {
-        await load_thread_posts(thread);
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
-        var text = sub + com;
-        console.log({text});
+        var text = sub + ' ' + com;
         return text.match(init_filter_regex);
     }
 
