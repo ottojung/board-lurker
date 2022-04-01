@@ -264,7 +264,7 @@
 
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
-        var text = sub + ' ' + com;
+        var text = '/' + thread.board + '/' + ' ' + sub + ' ' + com;
         return text.match(init_filter_regex);
     }
 
