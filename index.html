@@ -332,7 +332,6 @@
             }
         }
 
-        if (filtered.length === 0) { return; }
         reset_thread_div_html();
         var threads = filtered.sort((a, b) => compare_numbers(a.time, b.time));
         for (const thread of threads) {
