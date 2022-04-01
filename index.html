@@ -32,7 +32,6 @@
             for (var k = 0; k < threads.length; k++) {
                 var thread = threads[k];
                 thread.board = board;
-                await load_thread_posts(thread);
                 joined.push(thread);
             }
         }
@@ -279,7 +278,7 @@
         for (const thread of current) {
             if (!all_threads[thread.no]) {
                 all_threads[thread.no] = thread;
-                thread.posts = null;
+                await load_thread_posts(thread);
                 if (ok_thread_q(thread)) {
                     any_new = true;
                 }
