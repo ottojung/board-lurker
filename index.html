@@ -130,7 +130,13 @@
     }
 
     function delete_thread(thread_id) {
-        all_threads[thread_id].deleted = true;
+        var thread = all_threads[thread_id];
+        thread.deleted = true;
+        thread.posts = null;
+    }
+
+    function delete_button_click(thread_id) {
+        delete_thread(thread_id);
         redraw();
     }
 
@@ -139,7 +145,7 @@
         var now = unixtime_to_string(post.time);
         var comment = post.com ? post.com.toString() : '';
         var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
-        var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_thread(${thread_id})"/>` : '';
+        var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_button_click(${thread_id})"/>` : '';
         var boardTag = op_q ? `<b style='color:blue'> /${board}/ </b>` : '';
         var replies_count = op_q ? post.replies : post.my_replies_count;
         var replyCount = replies_count ? `<span class="nameBlock"> (${replies_count}) </span>` : '';
