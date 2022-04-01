@@ -208,6 +208,20 @@
     }
 
     var all_threads = {};
+    var filter_input = null;
+
+    function check_filter() {
+        if (filter_input) { return; }
+
+        filter_input = document.getElementById("myInput");
+        filter_input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                var text = filter_input.text();
+                console.log({text});
+            }
+        });
+    }
 
     async function main_loop() {
         var bl = (board, limit) => get_filtered_by_reply_count(board, limit);
