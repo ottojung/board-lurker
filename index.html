@@ -128,11 +128,17 @@
         return dateStr;
     }
 
+    function delete_thread(thread_id) {
+        all_threads[thread_id].deleted = true;
+        main_loop();
+    }
+
     function display_post(op_q, board, thread_id, post) {
         var link = get_post_link(board, thread_id, post.no);
         var now = unixtime_to_string(post.time);
         var comment = post.com ? post.com.toString() : '';
         var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
+        var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_thread(${thread_id})"/>` : '';
         var boardTag = op_q ? `<b style='color:blue'> /${board}/ </b>` : '';
         var replies_count = op_q ? post.replies : post.my_replies_count;
         var replyCount = replies_count ? `<span class="nameBlock"> (${replies_count}) </span>` : '';
@@ -162,6 +168,7 @@
           <a href="${link}" title="Link to this post">No.</a>
           <a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a>
         </span>
+        ${deleteButton}
       </div>
       ${file}
       <div> ${comment} </div>
@@ -318,6 +325,7 @@
 
         var filtered = [];
         for (const [k, thread] of Object.entries(all_threads)) {
+            if (thread.deleted) { continue; }
             if (await ok_thread_q(thread)) {
                 filtered.push(thread);
                 await load_thread_posts(thread);
