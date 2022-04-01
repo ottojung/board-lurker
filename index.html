@@ -347,8 +347,8 @@
             if (!existing) {
                 all_threads[thread.no] = thread;
             } else {
-                for (const key of thread) {
-                    existing[key] = thread[key];
+                for (const [key, value] of Object.entries(thread)) {
+                    existing[key] = value;
                 }
             }
         }
