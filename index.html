@@ -31,8 +31,8 @@
             var threads = json[i].threads;
             for (var k = 0; k < threads.length; k++) {
                 var thread = threads[k];
-                await load_thread_posts(thread);
                 thread.board = board;
+                await load_thread_posts(thread);
                 joined.push(thread);
             }
         }
@@ -240,7 +240,7 @@
     }
 
     function ok_thread_q(thread) {
-        if (await is_positively_filtered(thread)) {
+        if (is_positively_filtered(thread)) {
             return true;
         }
 
