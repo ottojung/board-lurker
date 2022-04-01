@@ -234,7 +234,7 @@
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
         var text = sub + com;
-        console.log({sub, com, text});
+        console.log({sub, com, text, sub2: thread.sub, com2: thread.com});
         return text.match(/Where are the/g);
     }
 
