@@ -204,9 +204,15 @@
     async function display_thread(board, thread) {
         rank_posts(thread.posts);
         display_op_post(board, thread.no, thread.posts[0]);
-        if (thread.posts === null) { thread.posts = get_thread_posts(board, thread.no); }
         display_posts(board, thread, thread.posts);
         append_delimiter_to_thread_div();
+    }
+
+    async function load_thread_posts(thread) {
+        if (thread.posts === null) {
+            thread.posts = await get_thread_posts(board, thread.no);
+        }
+        return thread;
     }
 
     var all_threads = {};
@@ -268,7 +274,9 @@
 
         if (any_new) {
             reset_thread_div_html();
-            var threads = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q).sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
+            var filtered = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q);
+            var with_posts = await Promise.all(filtered.map(load_thread_posts));
+            var threads = with_posts.sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
             for (const thread of threads) {
                 display_thread(thread.board, thread);
             }
