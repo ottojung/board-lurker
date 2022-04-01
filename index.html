@@ -52,6 +52,8 @@
 
     function make_posts_obs(posts) {
         var ret = {};
+        if (!posts) { return ret; }
+
         for (var i = 0; i < posts.length; i++) {
             var p = posts[i];
             p.my_index = i;
@@ -153,8 +155,8 @@
 </div>`);
     }
 
-    function display_op_post(board, thread_id, post) {
-        display_post(true, board, thread_id, post);
+    function display_op_post(thread) {
+        display_post(true, thread.board, thread, thread);
     }
 
     function display_reply_post(board, thread_id, post) {
@@ -207,7 +209,7 @@
 
     async function display_thread(board, thread) {
         rank_posts(thread.posts);
-        display_op_post(board, thread.no, thread.posts[0]);
+        display_op_post(thread);
         display_posts(board, thread, thread.posts);
         append_delimiter_to_thread_div();
     }
