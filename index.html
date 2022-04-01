@@ -104,7 +104,7 @@
         case "x":
             return `https://4plebs.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
         default:
-            return `no board "/${board}/" archives`;
+            return `https://archive.moe/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
         }
     }
 
@@ -171,7 +171,7 @@
     }
 
     function display_op_post(thread) {
-        display_post(true, thread.board, thread, thread);
+        display_post(true, thread.board, thread.no, thread);
     }
 
     function display_reply_post(board, thread_id, post) {
