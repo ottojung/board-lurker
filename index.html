@@ -223,7 +223,16 @@
         });
     }
 
+    function is_positively_filtered(thread) {
+        var text = (thread.sub ?? '') + (thread.com ?? '');
+        return text.match(/Where are all/g);
+    }
+
     function ok_thread_q(thread) {
+        if (is_positively_filtered(thread)) {
+            return true;
+        }
+
         switch (thread.board) {
         case "pol":
             return thread.replies > 350;
