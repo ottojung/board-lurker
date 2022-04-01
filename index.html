@@ -226,8 +226,11 @@
     }
 
     function is_positively_filtered(thread) {
+        load_thread_posts(thread);
         console.log({thread});
-        var text = (thread.sub ?? '') + (thread.com ?? '');
+        var sub = thread.sub ? thread.sub : '';
+        var com = thread.com ? thread.com : '';
+        var text = sub + com;
         console.log({text});
         return text.match(/Where are the/g);
     }
