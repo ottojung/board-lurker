@@ -108,11 +108,6 @@
         }
     }
 
-    function reset_thread_div_html() {
-        var div = get_thread_div();
-        div.innerHTML = "";
-    }
-
     var display_buffer = [];
 
     function append_html_to_thread_div(html) {
@@ -323,7 +318,6 @@
     let to_redraw_threads = [];
 
     function redraw() {
-        reset_thread_div_html();
         var threads = to_redraw_threads.sort((a, b) => compare_numbers(a.time, b.time));
         for (const thread of threads) {
             if (thread.deleted) { continue; }
