@@ -49,11 +49,11 @@
         }
     }
 
-    async function get_filtered_by_reply_count(board, count) {
-        var threads = await get_threads(board);
-        var popular = threads.filter(thread => thread.replies > count);
-        return popular;
-    }
+    // async function get_filtered_by_reply_count(board, count) {
+    //     var threads = await get_threads(board);
+    //     var popular = threads.filter(thread => thread.replies > count);
+    //     return popular;
+    // }
 
     function make_posts_obs(posts) {
         var ret = {};
@@ -223,29 +223,48 @@
         });
     }
 
+    function ok_thread_q(thread) {
+        switch (thread.board) {
+        case "pol":
+            return thread.replies > 350;
+        case "b":
+        case "bant":
+        case "adv":
+        case "f":
+        case "hr":
+        case "o":
+        case "pol":
+        case "s4s":
+        case "sp":
+        case "tg":
+        case "trv":
+        case "tv":
+        case "x":
+            return thread.replies > 290;
+        default:
+            throw new Exception(`Uknown thread board "${thread.board}"`);
+        }
+    }
+
     async function main_loop() {
-        var bl = (board, limit) => get_filtered_by_reply_count(board, limit);
-        var list = [bl("pol", 350),
-                    bl("bant", 290),
-                    bl("t", 290),
-                    bl("g", 290),
-                    bl("sci", 290),
-                    bl("lit", 290),
-                    // bl("int", 290),
-                    bl("b", 290)];
-        var current = (await Promise.all(list)).flat();
+        var list = ["pol", "bant", "t", "g", "sci", "lit", "b"];
+        var poll = list.map(get_threads);
+        var current = (await Promise.all(poll)).flat();
 
         var any_new = false;
         for (const thread of current) {
             if (!all_threads[thread.no]) {
                 all_threads[thread.no] = thread;
                 thread.posts = null;
+                if (ok_thread_q(thread)) {
+                    any_new = true;
+                }
             }
         }
 
         if (any_new) {
             reset_thread_div_html();
-            var threads = Object.entries(all_threads).map(([k, v]) => v).sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
+            var threads = Object.entries(all_threads).map(([k, v]) => v).filter(ok_thread_q).sort((a, b) => compare_numbers(a.posts[0].time, b.posts[0].time));
             for (const thread of threads) {
                 display_thread(thread.board, thread);
             }
