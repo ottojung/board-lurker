@@ -106,8 +106,15 @@
         append_html_to_thread_div("</br><hr></br>");
     }
 
+    function unixtime_to_string(unixtime) {
+        var d = new Date(unixtime);
+        var dateStr = `${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        return dateStr;
+    }
+
     function display_post(op_q, board, thread_id, post) {
         var link = get_post_link(board, thread_id, post.no);
+        var now = unixtime_to_string(post.time);
         var comment = post.com ? post.com.toString() : '';
         var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
         var boardTag = op_q ? `<b style='color:blue'> /${board}/ </b>` : '';
@@ -133,7 +140,7 @@
         <span class="nameBlock">
           <span class="name"> ${post.name} </span>
         </span>
-        <span class="dateTime">${post.now}</span>
+        <span class="dateTime">${now}</span>
         <span class="postNum desktop">
           <a href="${link}" title="Link to this post">No.</a>
           <a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a>
