@@ -219,7 +219,6 @@
     }
 
     async function load_thread_posts(thread) {
-        console.log({thread});
         if (!thread.posts) {
             await reload_thread_posts(thread);
         }
