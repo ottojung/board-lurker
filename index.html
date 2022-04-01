@@ -31,6 +31,7 @@
             var threads = json[i].threads;
             for (var k = 0; k < threads.length; k++) {
                 var thread = threads[k];
+                await load_thread_posts(thread);
                 thread.board = board;
                 joined.push(thread);
             }
@@ -230,8 +231,7 @@
         });
     }
 
-    async function is_positively_filtered(thread) {
-        await load_thread_posts(thread);
+    function is_positively_filtered(thread) {
         var sub = thread.sub ? thread.sub : '';
         var com = thread.com ? thread.com : '';
         var text = sub + com;
@@ -239,7 +239,7 @@
         return text.match(init_filter_regex);
     }
 
-    async function ok_thread_q(thread) {
+    function ok_thread_q(thread) {
         if (await is_positively_filtered(thread)) {
             return true;
         }
@@ -280,7 +280,7 @@
             if (!all_threads[thread.no]) {
                 all_threads[thread.no] = thread;
                 thread.posts = null;
-                if (await ok_thread_q(thread)) {
+                if (ok_thread_q(thread)) {
                     any_new = true;
                 }
             }
