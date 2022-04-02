@@ -320,6 +320,7 @@
         case "g":
         case "sci":
         case "lit":
+        case "cm":
             return thread.replies > 290;
         case "h": return false;
         default:
@@ -352,7 +353,7 @@
     }
 
     async function main_loop() {
-        var list = ["pol", "bant", "t", "g", "sci", "lit", "b", "h"];
+        var list = ["pol", "bant", "t", "g", "sci", "lit", "b", "h", "cm"];
         var poll = list.map(get_threads);
         var current = (await Promise.all(poll)).flat();
 
