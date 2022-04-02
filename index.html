@@ -276,7 +276,8 @@
                 } else {
                     init_filter_regex = null;
                 }
-                main_loop();
+
+                refilter_and_redraw();
             }
         });
     }
@@ -326,7 +327,20 @@
         }
     }
 
-    let to_redraw_threads = [];
+    var to_redraw_threads = [];
+
+    async function refilter_and_redraw() {
+        to_redraw_threads = [];
+        for (const [k, thread] of Object.entries(all_threads)) {
+            if (thread.deleted) { continue; }
+            if (await ok_thread_q(thread)) {
+                to_redraw_threads.push(thread);
+                await load_thread_posts(thread);
+            }
+        }
+
+        redraw();
+    }
 
     function redraw() {
         var threads = to_redraw_threads.sort((a, b) => compare_numbers(a.time, b.time));
@@ -353,16 +367,7 @@
             }
         }
 
-        to_redraw_threads = [];
-        for (const [k, thread] of Object.entries(all_threads)) {
-            if (thread.deleted) { continue; }
-            if (await ok_thread_q(thread)) {
-                to_redraw_threads.push(thread);
-                await load_thread_posts(thread);
-            }
-        }
-
-        redraw();
+        await refilter_and_redraw();
     }
 
     function main() {
