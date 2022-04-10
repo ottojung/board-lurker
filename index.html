@@ -68,16 +68,17 @@
         }
     }
 
-    function make_posts_obs(posts) {
+    function make_posts_map(posts) {
         var ret = {};
         if (!posts) { return ret; }
 
         for (var i = 0; i < posts.length; i++) {
-            var p = posts[i];
-            p.my_index = i;
-            p.my_replies_count = 0;
-            ret[p.no] = p;
+            var post = posts[i];
+            post.my_index = i;
+            post.my_replies_count = 0;
+            ret[post.no] = post;
         }
+
         return ret;
     }
 
@@ -135,7 +136,7 @@
     function delete_thread(thread_id) {
         var thread = all_threads[thread_id];
         thread.deleted = true;
-        thread.posts = null;
+        thread.posts_obj = null;
     }
 
     function delete_button_click(thread_id) {
@@ -197,7 +198,7 @@
 
     var responses_regex = /a href="#p(\d+)/g;
 
-    function rank_posts_obj(obj) {
+    function rank_posts_map(obj) {
         for (const [key, value] of Object.entries(obj)) {
             var comment = value.com;
             if (comment) {
@@ -229,9 +230,11 @@
         }
     }
 
-    function rank_posts(posts) {
-        var obj = make_posts_obs(posts);
-        rank_posts_obj(obj);
+    function rank_posts(posts_obj) {
+        if (!posts_obj.map) {
+            posts_obj.map = make_posts_map(posts_obj.list);
+            rank_posts_map(posts_obj.map);
+        }
     }
 
     function compare_numbers(a, b) {
@@ -259,10 +262,10 @@
     }
 
     function display_thread(board, thread) {
-        rank_posts(thread.posts);
-        relink_posts(thread, thread.posts);
+        rank_posts(thread.posts_obj);
+        relink_posts(thread, thread.posts_obj.list);
         display_op_post(thread);
-        display_posts(board, thread, thread.posts);
+        display_posts(board, thread, thread.posts_obj.list);
         append_delimiter_to_thread_div();
     }
 
@@ -274,11 +277,12 @@
     }
 
     async function reload_thread_posts(thread) {
-        thread.posts = await get_thread_posts(thread.board, thread.no);
+        var list = await get_thread_posts(thread.board, thread.no);
+        thread.posts_obj = { list };
     }
 
     async function load_thread_posts(thread) {
-        if (!thread.posts) {
+        if (!thread.posts_obj) {
             await reload_thread_posts(thread);
         }
         return thread;
