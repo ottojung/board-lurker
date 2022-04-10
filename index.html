@@ -168,6 +168,7 @@
   <div class="sideArrows"></div>
     <div class="post ${op_q ? 'op' : 'reply'}">
       <div class="postInfo desktop">
+        ${deleteButton}
         ${boardTag}
         ${subject}
         ${replyCount}
@@ -179,7 +180,6 @@
           <a href="${link}" title="Link to this post" target="_blank" rel="noopener noreferrer">No.</a>
           <!-- <a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a> -->
         </span>
-        ${deleteButton}
       </div>
       ${file}
       <div> ${comment} </div>
