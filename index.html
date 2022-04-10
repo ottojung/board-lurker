@@ -90,7 +90,7 @@
         return thread_div;
     }
 
-    function get_post_link(board, thread_id, post_id) {
+    function get_backup_post_link(board, thread_id, post_id) {
         switch (board) {
         case "b":
         case "bant":
@@ -111,6 +111,10 @@
         default:
             return `https://archived.moe/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
         }
+    }
+
+    function get_post_link(board, thread_id, post_id) {
+        return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
     }
 
     var display_buffer = [];
