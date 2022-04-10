@@ -207,6 +207,25 @@
         }
     }
 
+    function relink_post(thread, post) {
+        function relinker(match, p1, offset, string) {
+            // how this works: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+            var link = get_post_link(thread.board, thread.no, p1);
+            return `a target="_blank" rel="noopener noreferrer" href="${link}"`;
+        }
+
+        var comment = post.com;
+        if (comment) {
+            post.com = comment.replace(responses_regex, relinker);
+        }
+    }
+
+    function relink_posts(thread, posts) {
+        for (const post of posts) {
+            relink_post(thread, post);
+        }
+    }
+
     function rank_posts(posts) {
         var obj = make_posts_obs(posts);
         rank_posts_obj(obj);
@@ -238,6 +257,7 @@
 
     function display_thread(board, thread) {
         rank_posts(thread.posts);
+        relink_posts(thread, thread.posts);
         display_op_post(thread);
         display_posts(board, thread, thread.posts);
         append_delimiter_to_thread_div();
