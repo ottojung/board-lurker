@@ -34,6 +34,34 @@
 
   <script>
 
+    const thread_statistics = {};
+    const statistics_span = 1000;
+
+    function statistics_get(board) {
+        const existing = thread_statistics[board];
+        if (!existing) {
+            var max = 0;
+            var ring = [];
+            var index = 0;
+            var stat = { ring, max, index };
+            thread_statistics[board] = stat;
+            return stat;
+        } else {
+            return existing;
+        }
+    }
+
+    function append_statistics(thread) {
+        const stat = statistics_get(thread.board);
+        stat.ring[stat.index] = thread;
+        stat.index = (stat.index + 1) % statistics_span;
+    }
+
+    function update_statistics(board) {
+        const stat = statistics_get(board);
+        stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
+    }
+
     async function get_threads(board) {
         var response = await fetch("https://a.4cdn.org/" + board + "/catalog.json");
         var json = await response.json();
@@ -321,12 +349,16 @@
         return text.match(init_filter_regex);
     }
 
-    async function ok_thread_q(thread) {
-        if (await is_positively_filtered(thread)) {
-            await reload_thread_posts(thread);
+    const statistics_threashold = 0.95;
+
+    function has_many_replies_q(thread) {
+        const stat = statistics_get(thread.board);
+        if (thread.replies > statistics_threashold * stat.max) {
             return true;
         }
 
+        return false;
+        // NOTE: obsolete, statistics is used instead.
         switch (thread.board) {
         case "pol":
             return thread.replies > 350;
@@ -353,6 +385,19 @@
         default:
             throw new Error(`Uknown thread board "${thread.board}"`);
         }
+    }
+
+    async function ok_thread_q(thread) {
+        if (await is_positively_filtered(thread)) {
+            await reload_thread_posts(thread);
+            return true;
+        }
+
+        if (has_many_replies_q(thread)) {
+            return true;
+        }
+
+        return false;
     }
 
     var to_redraw_threads = [];
@@ -388,12 +433,15 @@
             const existing = all_threads[thread.no];
             if (!existing) {
                 all_threads[thread.no] = thread;
+                append_statistics(thread);
             } else {
                 for (const [key, value] of Object.entries(thread)) {
                     existing[key] = value;
                 }
             }
         }
+
+        list.forEach(update_statistics);
 
         await refilter_and_redraw();
     }
