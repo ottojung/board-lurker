@@ -230,6 +230,27 @@
         display_post(false, board, thread_id, post);
     }
 
+    function more_button_click(thread_no) {
+        const thread = all_threads[thread_no];
+        const current = thread.replies_to_display || replies_to_display;
+        thread.replies_to_display = current + 5;
+        redraw();
+    }
+
+    function display_more_button(thread) {
+        const moreButton = `<input type="button" id="more-${thread.no}" value="more" onclick="more_button_click(${thread.no})"/>`;
+        append_html_to_thread_div(`
+<div class="postContainer replyContainer">
+  <div class="sideArrows"></div>
+    <div class="">
+      <div class="postInfo desktop">
+        ${moreButton}
+      </div>
+    </div>
+  </div>
+</div>`);
+    }
+
     var responses_regex = /a href="#p(\d+)/g;
 
     function rank_posts_map(obj) {
@@ -279,13 +300,13 @@
         return -1;
     }
 
-    var replies_to_display = 5;
+    const replies_to_display = 5;
 
     function display_posts(board, thread, posts) {
         if (!posts) { return; }
         var op_no = thread.no;
         var sorted = posts.sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
-        var k = replies_to_display;
+        var k = thread.replies_to_display || replies_to_display;
         for (var i = 0; i < posts.length; i++) {
             var post = posts[i];
             if (post.no !== op_no) {
@@ -300,6 +321,7 @@
         relink_posts(thread, thread.posts_obj.list);
         display_op_post(thread);
         display_posts(board, thread, thread.posts_obj.list);
+        display_more_button(thread);
         append_delimiter_to_thread_div();
     }
 
