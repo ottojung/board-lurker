@@ -329,7 +329,7 @@
     var boards_map = {};
 
     function init_boards_map(board_string) {
-        const list = board_string.split(' ');
+        const list = board_string.trim().split(' ');
         boards_map = {};
         for (const board of list) {
             boards_map[board] = true;
