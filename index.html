@@ -63,8 +63,14 @@
     }
 
     async function get_threads(board) {
-        var response = await fetch("https://a.4cdn.org/" + board + "/catalog.json");
-        var json = await response.json();
+        var json = {};
+        try {
+            var response = await fetch("https://a.4cdn.org/" + board + "/catalog.json");
+            json = await response.json();
+        } catch (ex) {
+            console.log({"error": true, board, ex});
+            return null;
+        }
 
         var joined = [];
 
@@ -469,6 +475,7 @@
         var current = (await Promise.all(poll)).flat();
 
         for (const thread of current) {
+            if (!thread) { continue; }
             const existing = all_threads[thread.no];
             if (!existing) {
                 all_threads[thread.no] = thread;
