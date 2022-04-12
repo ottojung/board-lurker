@@ -40,10 +40,11 @@
     function statistics_get(board) {
         const existing = thread_statistics[board];
         if (!existing) {
-            var max = 0;
+            var threshold = 0;
             var ring = [];
             var index = 0;
-            var stat = { ring, max, index };
+            var sorted = null;
+            var stat = { ring, threshold, index, sorted };
             thread_statistics[board] = stat;
             return stat;
         } else {
@@ -55,11 +56,18 @@
         const stat = statistics_get(thread.board);
         stat.ring[stat.index] = thread;
         stat.index = (stat.index + 1) % statistics_span;
+        stat.sorted = null;
     }
+
+    const statistics_threshold = 0.95;
 
     function update_statistics(board) {
         const stat = statistics_get(board);
-        stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
+        // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
+        stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
+        const threshold_index = Math.floor(statistics_threshold * stat.ring.length);
+        stat.threshold = stat.sorted[threshold_index].replies;
+        console.log(`New threshold for /${board}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
     }
 
     async function get_threads(board) {
@@ -408,11 +416,9 @@
         return text.match(init_filter_regex);
     }
 
-    const statistics_threashold = 0.95;
-
     function has_many_replies_q(thread) {
         const stat = statistics_get(thread.board);
-        if (thread.replies > statistics_threashold * stat.max) {
+        if (thread.replies > stat.threshold) {
             return true;
         }
 
@@ -478,6 +484,8 @@
                 await load_thread_posts(thread);
             }
         }
+
+        console.log(`Redrawing ${to_redraw_threads.length} threads`);
 
         redraw();
     }
