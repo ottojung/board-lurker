@@ -158,14 +158,12 @@
         return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
     }
 
-    var display_buffer = [];
-
-    function append_html_to_thread_div(html) {
-        display_buffer.push(html);
+    function append_html_to_thread(thread, html) {
+        thread.cache.html += html;
     }
 
-    function append_delimiter_to_thread_div() {
-        append_html_to_thread_div("</br><hr></br>");
+    function append_delimiter_to_thread_div(thread) {
+        append_html_to_thread(thread, "</br><hr></br>");
     }
 
     function unixtime_to_string(unixtime) {
@@ -185,7 +183,9 @@
         redraw();
     }
 
-    function display_post(op_q, board, thread_id, post) {
+    function display_post(op_q, thread, post) {
+        var board = thread.board;
+        var thread_id = thread.no;
         var link = get_post_link(board, thread_id, post.no);
         var now = unixtime_to_string(post.time);
         var comment = post.com ? post.com.toString() : '';
@@ -204,7 +204,7 @@
   </a>
 </div>` : '';
 
-        append_html_to_thread_div(`
+        append_html_to_thread(thread, `
 <div class="postContainer ${op_q ? 'opContainter' : 'replyContainer'}">
   <div class="sideArrows"></div>
     <div class="post ${op_q ? 'op' : 'reply'}">
@@ -230,11 +230,11 @@
     }
 
     function display_op_post(thread) {
-        display_post(true, thread.board, thread.no, thread);
+        display_post(true, thread, thread);
     }
 
-    function display_reply_post(board, thread_id, post) {
-        display_post(false, board, thread_id, post);
+    function display_reply_post(thread, post) {
+        display_post(false, thread, post);
     }
 
     function more_button_click(thread_no) {
@@ -246,7 +246,7 @@
 
     function display_more_button(thread) {
         const moreButton = `<input type="button" id="more-${thread.no}" value="more" onclick="more_button_click(${thread.no})"/>`;
-        append_html_to_thread_div(`
+        append_html_to_thread(thread, `
 <div class="postContainer replyContainer">
   <div class="sideArrows"></div>
     <div class="">
@@ -313,15 +313,17 @@
 
     const replies_to_display = 5;
 
-    function display_posts(board, thread, posts) {
+    function display_posts(thread, posts) {
         if (!posts) { return; }
+
+        var board = thread.board;
         var op_no = thread.no;
         var sorted = posts.sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
         var k = thread.replies_to_display || replies_to_display;
         for (var i = 0; i < posts.length; i++) {
             var post = posts[i];
             if (post.no !== op_no) {
-                display_reply_post(board, thread.no, post);
+                display_reply_post(thread, post);
                 if ((--k) == 0) { break; }
             }
         }
@@ -331,22 +333,22 @@
         rank_posts(thread);
         relink_posts(thread, thread.cache.posts_list);
         display_op_post(thread);
-        display_posts(board, thread, thread.cache.posts_list);
+        display_posts(thread, thread.cache.posts_list);
         display_more_button(thread);
-        append_delimiter_to_thread_div();
+        append_delimiter_to_thread_div(thread);
     }
 
-    function finalize_display() {
+    function finalize_display(threads) {
         var div = get_thread_div();
-        var html = display_buffer.join('\n');
+        var html = threads.map((thread) => thread.cache.html).join('');
         div.innerHTML = html;
-        display_buffer = [];
     }
 
     async function reload_thread_posts(thread) {
         var list = await get_thread_posts(thread.board, thread.no);
         thread.cache.posts_list = list;
         thread.cache.posts_map = null;
+        thread.cache.html = '';
     }
 
     async function load_thread_posts(thread) {
@@ -500,7 +502,7 @@
             if (thread.deleted) { continue; }
             display_thread(thread.board, thread);
         }
-        finalize_display();
+        finalize_display(to_redraw_threads);
     }
 
     async function main_loop() {
