@@ -68,6 +68,19 @@
         console.log(`New threshold for /${board}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
     }
 
+    function get_thread_filter_text(thread) {
+        const cache = thread.cache;
+        if (cache.filter_text) {
+            return cache.filter_text;
+        } else {
+            var sub = thread.sub ? thread.sub : '';
+            var com = thread.com ? thread.com : '';
+            var text = '/' + thread.board + '/' + ' ' + sub + ' ' + com;
+            cache.filter_text = text;
+            return text;
+        }
+    }
+
     async function get_threads(board) {
         var json = {};
         try {
@@ -367,7 +380,9 @@
     var all_threads = {};
     var filter_input = null;
     var init_filter_regex = null;
-    const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr"];
+    var neg_filter_regex = null;
+    // const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr"];
+    const default_boards = ["wsr", "cm"]; // DEBUG
     var boards_map = {};
 
     function init_boards_map(board_string) {
@@ -408,6 +423,25 @@
         });
     }
 
+    function init_neg_filter() {
+        let last_one = null;
+        on_input_enter("my_neg_filter", function(input) {
+            var text = input.value.trim();
+            if (text.length > 0) {
+                text = text.trim().split('\n').map(line => '(' + line.trim() + ')').join('|');
+                console.log(`New negative regex: "${text}"`);
+                neg_filter_regex = new RegExp(text, "i");
+            } else {
+                neg_filter_regex = null;
+            }
+
+            if (text === last_one) { return; }
+            last_one = text;
+
+            refilter_and_redraw();
+        });
+    }
+
     function init_boards_list_element() {
         function hook(input) {
             if (!input.value) {
@@ -428,10 +462,16 @@
         if (thread.replies < min_replies_for_filter) { return false; }
         if (!init_filter_regex) { return false; }
 
-        var sub = thread.sub ? thread.sub : '';
-        var com = thread.com ? thread.com : '';
-        var text = '/' + thread.board + '/' + ' ' + sub + ' ' + com;
+        var text = get_thread_filter_text(thread);
         return text.match(init_filter_regex);
+    }
+
+    function is_negatively_filtered(thread) {
+        if (thread.replies < min_replies_for_filter) { return false; }
+        if (!neg_filter_regex) { return false; }
+
+        var text = get_thread_filter_text(thread);
+        return text.match(neg_filter_regex);
     }
 
     function has_many_replies_q(thread) {
@@ -482,6 +522,10 @@
         if (await is_positively_filtered(thread)) {
             await reload_thread_posts(thread);
             return true;
+        }
+
+        if (is_negatively_filtered(thread)) {
+            return false;
         }
 
         if (has_many_replies_q(thread)) {
@@ -548,6 +592,7 @@
     document.addEventListener('DOMContentLoaded', (event) => {
         main();
         init_filter();
+        init_neg_filter();
         init_boards_list_element();
     });
 
@@ -557,6 +602,9 @@
 <body class="is_thread board_b yotsuba_new nws">
   <textarea rows="5" cols="60" id="my_filter" placeholder="
  Positive filter RegEx here.
+ Multiple lines will be counted as alternatives." submit=""/></textarea>
+  <textarea rows="5" cols="60" id="my_neg_filter" placeholder="
+ Negative filter RegEx here.
  Multiple lines will be counted as alternatives." submit=""/></textarea>
   <p> List of boards </p>
   <input id="my_boards_list" placeholder="Boads list" submit=""/>
