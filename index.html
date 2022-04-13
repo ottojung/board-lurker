@@ -159,7 +159,11 @@
     }
 
     function append_html_to_thread(thread, html) {
-        thread.cache.html += html;
+        if (thread.cache.html) {
+            thread.cache.html += html;
+        } else {
+            thread.cache.html = html;
+        }
     }
 
     function append_delimiter_to_thread_div(thread) {
@@ -329,7 +333,9 @@
         }
     }
 
-    function display_thread(board, thread) {
+    function display_thread(thread) {
+        if (thread.cache.html) { return; }
+
         rank_posts(thread);
         relink_posts(thread, thread.cache.posts_list);
         display_op_post(thread);
@@ -348,7 +354,7 @@
         var list = await get_thread_posts(thread.board, thread.no);
         thread.cache.posts_list = list;
         thread.cache.posts_map = null;
-        thread.cache.html = '';
+        thread.cache.html = null;
     }
 
     async function load_thread_posts(thread) {
@@ -500,7 +506,7 @@
     function redraw() {
         for (const thread of to_redraw_threads) {
             if (thread.deleted) { continue; }
-            display_thread(thread.board, thread);
+            display_thread(thread);
         }
         finalize_display(to_redraw_threads);
     }
