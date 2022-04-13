@@ -458,7 +458,7 @@
 
     const min_replies_for_filter = 10;
 
-    async function is_positively_filtered(thread) {
+    function is_positively_filtered(thread) {
         if (thread.replies < min_replies_for_filter) { return false; }
         if (!positive_filter_regex) { return false; }
 
@@ -514,13 +514,13 @@
         return !(boards_map[thread.board]);
     }
 
-    async function ok_thread_q(thread) {
+    function ok_thread_q(thread) {
         if (is_bad_board(thread)) {
             return false;
         }
 
-        if (await is_positively_filtered(thread)) {
-            await reload_thread_posts(thread);
+        if (is_positively_filtered(thread)) {
+            thread.cache.posts_list = null;
             return true;
         }
 
@@ -541,7 +541,7 @@
         to_redraw_threads = [];
         for (const [k, thread] of Object.entries(all_threads)) {
             if (thread.deleted) { continue; }
-            if (await ok_thread_q(thread)) {
+            if (ok_thread_q(thread)) {
                 to_redraw_threads.push(thread);
                 await load_thread_posts(thread);
             }
