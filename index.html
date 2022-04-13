@@ -515,12 +515,15 @@
     }
 
     function ok_thread_q(thread) {
+        if (thread.deleted) {
+            return false;
+        }
+
         if (is_bad_board(thread)) {
             return false;
         }
 
         if (is_positively_filtered(thread)) {
-            thread.cache.posts_list = null;
             return true;
         }
 
@@ -536,12 +539,11 @@
     }
 
     var to_redraw_threads = [];
-    const max_threads_per_page = 20;
+    const max_threads_per_page = 15;
 
     async function refilter_and_redraw() {
         to_redraw_threads = [];
         for (const [k, thread] of Object.entries(all_threads)) {
-            if (thread.deleted) { continue; }
             if (ok_thread_q(thread)) {
                 to_redraw_threads.push(thread);
                 if (to_redraw_threads.length > max_threads_per_page) { break; }
@@ -583,6 +585,14 @@
         }
 
         list.forEach(update_statistics);
+
+        for (const [k, thread] of Object.entries(all_threads)) {
+            if (ok_thread_q(thread)) {
+                if (is_positively_filtered(thread)) {
+                    thread.cache.posts_list = null;
+                }
+            }
+        }
 
         await refilter_and_redraw();
     }
