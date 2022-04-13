@@ -197,7 +197,7 @@
 
     function delete_button_click(thread_id) {
         delete_thread(thread_id);
-        redraw();
+        refilter_and_redraw();
     }
 
     function display_post(op_q, thread, post) {
@@ -536,6 +536,7 @@
     }
 
     var to_redraw_threads = [];
+    const max_threads_per_page = 20;
 
     async function refilter_and_redraw() {
         to_redraw_threads = [];
@@ -543,9 +544,11 @@
             if (thread.deleted) { continue; }
             if (ok_thread_q(thread)) {
                 to_redraw_threads.push(thread);
-                await load_thread_posts(thread);
+                if (to_redraw_threads.length > max_threads_per_page) { break; }
             }
         }
+
+        await Promise.all(to_redraw_threads.map(load_thread_posts));
 
         console.log(`Redrawing ${to_redraw_threads.length} threads`);
 
