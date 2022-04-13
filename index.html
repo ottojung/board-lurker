@@ -393,6 +393,8 @@
         on_input_enter("my_filter", function(input) {
             var text = input.value;
             if (text) {
+                text = text.trim().split('\n').map(line => '(' + line.trim() + ')').join('|');
+                console.log(`New positive regex: "${text}"`);
                 init_filter_regex = new RegExp(text, "i");
             } else {
                 init_filter_regex = null;
@@ -549,7 +551,10 @@
 </head>
 
 <body class="is_thread board_b yotsuba_new nws">
-  <input id="my_filter" placeholder="Positive filter RegEx here" submit=""/>
+  <textarea rows="5" cols="60" id="my_filter" placeholder="
+ Positive filter RegEx here.
+ Multiple lines will be counted as alternatives." submit=""/></textarea>
+  <p> List of boards </p>
   <input id="my_boards_list" placeholder="Boads list" submit=""/>
   </br></br>
 
