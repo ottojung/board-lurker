@@ -81,10 +81,20 @@
         }
     }
 
-    async function get_threads(board) {
+    function get_website_thread_url(website, board) {
+        switch (website) {
+        case "4chan": return `https://a.4cdn.org/${board}/catalog.json`;
+        case "lainchan": return `https://lainchan.org/${board}/catalog.json`;
+        default:
+            console.error(`Uknown website "${website}"`);
+            return null;
+        }
+    }
+
+    async function get_threads(website, board) {
         var json = {};
         try {
-            var response = await fetch("https://a.4cdn.org/" + board + "/catalog.json");
+            var response = await fetch(get_website_thread_url(website, board));
             json = await response.json();
         } catch (ex) {
             console.log({"error": true, board, ex});
@@ -98,6 +108,7 @@
             for (var k = 0; k < threads.length; k++) {
                 var thread = threads[k];
                 thread.board = board;
+                thread.website = website;
                 thread.cache = {};
                 joined.push(thread);
             }
@@ -106,9 +117,19 @@
         return joined;
     }
 
-    async function get_thread_posts(board, thread_id) {
+    function get_thread_posts_link(website, board, thread_id) {
+        switch (website) {
+        case '4chan': return `https://a.4cdn.org/${board}/thread/${thread_id.toString()}.json`;
+        case 'lainchan': return `https://a.4cdn.org/${board}/res/${thread_id.toString()}.json`;
+        default:
+            console.error(`Uknown website "${website}"`);
+            return null;
+        }
+    }
+
+    async function get_thread_posts(website, board, thread_id) {
         try {
-            var response = await fetch("https://a.4cdn.org/" + board + "/thread/" + thread_id.toString() + ".json");
+            var response = await fetch(get_thread_posts_link(website, board, thread_id));
             if (response.status === 404) {
                 all_threads[thread_id].deleted = true;
                 return null;
@@ -365,7 +386,7 @@
     }
 
     async function reload_thread_posts(thread) {
-        var list = await get_thread_posts(thread.board, thread.no);
+        var list = await get_thread_posts(thread.website, thread.board, thread.no);
         thread.cache.posts_list = list;
         thread.cache.posts_map = null;
         thread.cache.html = null;
@@ -569,7 +590,7 @@
 
     async function main_loop() {
         var list = Object.keys(boards_map);
-        var poll = list.map(get_threads);
+        var poll = list.map(board => get_threads("4chan", board));
         var current = (await Promise.all(poll)).flat();
 
         for (const thread of current) {
