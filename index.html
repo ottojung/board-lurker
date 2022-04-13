@@ -35,15 +35,15 @@
     const thread_statistics = {};
     const statistics_span = 1000;
 
-    function statistics_get(board) {
-        const existing = thread_statistics[board];
+    function statistics_get(board_code) {
+        const existing = thread_statistics[board_code];
         if (!existing) {
             var threshold = 0;
             var ring = [];
             var index = 0;
             var sorted = null;
             var stat = { ring, threshold, index, sorted };
-            thread_statistics[board] = stat;
+            thread_statistics[board_code] = stat;
             return stat;
         } else {
             return existing;
@@ -51,21 +51,28 @@
     }
 
     function append_statistics(thread) {
-        const stat = statistics_get(thread.board);
+        const stat = statistics_get(thread.website, thread.board);
         stat.ring[stat.index] = thread;
         stat.index = (stat.index + 1) % statistics_span;
         stat.sorted = null;
     }
 
+    function make_board_code(website, board) {
+        switch (website) {
+        case "4chan": return board;
+        default: return `${website}:${board}`;
+        }
+    }
+
     const statistics_threshold = 0.95;
 
-    function update_statistics(board) {
-        const stat = statistics_get(board);
+    function update_statistics(website, board) {
+        const stat = statistics_get(website, board);
         // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
         stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
         const threshold_index = Math.floor(statistics_threshold * stat.ring.length);
         stat.threshold = stat.sorted[threshold_index].replies;
-        console.log(`New threshold for /${board}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
+        console.log(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
     }
 
     function get_thread_filter_text(thread) {
@@ -75,7 +82,7 @@
         } else {
             var sub = thread.sub ? thread.sub : '';
             var com = thread.com ? thread.com : '';
-            var text = '/' + thread.board + '/' + ' ' + sub + ' ' + com;
+            var text = '/' + make_board_code(thread.website, thread.board) + '/' + ' ' + sub + ' ' + com;
             cache.filter_text = text;
             return text;
         }
@@ -120,7 +127,7 @@
     function get_thread_posts_link(website, board, thread_id) {
         switch (website) {
         case '4chan': return `https://a.4cdn.org/${board}/thread/${thread_id.toString()}.json`;
-        case 'lainchan': return `https://a.4cdn.org/${board}/res/${thread_id.toString()}.json`;
+        case 'lainchan': return `https://lainchan.org/${board}/res/${thread_id.toString()}.json`;
         default:
             console.error(`Uknown website "${website}"`);
             return null;
@@ -188,8 +195,34 @@
         }
     }
 
-    function get_post_link(board, thread_id, post_id) {
-        return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+    function get_file_link(thread, post) {
+        switch (thread.website) {
+        case "4chan": return `https://i.4cdn.org/${thread.board}/${post.tim}${post.ext}`;
+        case "lainchan": return `https://lainchan.org/${thread.board}/src/${post.tim}${post.ext}`;
+        default:
+            console.error(`Uknown website for a post file "${website}"`);
+            return null;
+        }
+    }
+
+    function get_file_preview_link(thread, post) {
+        switch (thread.website) {
+        case "4chan": return `https://i.4cdn.org/${thread.board}/${post.tim}s.jpg`;
+        case "lainchan": return `https://lainchan.org/${thread.board}/thumb/${post.tim}.png`;
+        default:
+            console.error(`Uknown website for a post file preview "${website}"`);
+            return null;
+        }
+    }
+
+    function get_post_link(website, board, thread_id, post_id) {
+        switch (website) {
+        case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+        case "lainchan": return `https://lainchan.org/${board}/res/${thread_id.toString()}/#p${post_id.toString()}`;
+        default:
+            console.error(`Uknown website for a post link "${website}"`);
+            return null;
+        }
     }
 
     function append_html_to_thread(thread, html) {
@@ -223,22 +256,25 @@
 
     function display_post(op_q, thread, post) {
         var board = thread.board;
+        var board_code = make_board_code(thread.website, thread.board);
         var thread_id = thread.no;
-        var link = get_post_link(board, thread_id, post.no);
+        var link = get_post_link(thread.website, board, thread_id, post.no);
         var now = unixtime_to_string(post.time);
         var comment = post.com ? post.com.toString() : '';
         var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
         var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_button_click(${thread_id})"/>` : '';
-        var boardTag = op_q ? `<b style='color:blue'> /${board}/ </b>` : '';
+        var boardTag = op_q ? `<b style='color:blue'> /${board_code}/ </b>` : '';
         var replies_count = op_q ? post.replies : post.my_replies_count;
         var replyCount = replies_count ? `<span class="nameBlock"> (${replies_count}) </span>` : '';
+        var file_link = get_file_link(thread, post);
+        var file_preview = get_file_preview_link(thread, post);
         var file = post.filename ? `
 <div class="file">
   <div class="fileText">
-     File: <a href="https://i.4cdn.org/${board}/${post.tim}${post.ext}" target="_blank">${post.filename}${post.ext}</a>
+     File: <a href="${file_link}" target="_blank">${post.filename}${post.ext}</a>
   </div>
-  <a class="fileThumb" href="https://i.4cdn.org/${board}/${post.tim}${post.ext}" target="_blank">
-    <img src="https://i.4cdn.org/${board}/${post.tim}s.jpg" alt="" data-md5="" style="" loading="lazy">
+  <a class="fileThumb" href="${file_link}" target="_blank">
+    <img src="${file_preview}" alt="" data-md5="" style="" loading="lazy">
   </a>
 </div>` : '';
 
@@ -318,7 +354,7 @@
     function relink_post(thread, post) {
         function relinker(match, p1, offset, string) {
             // how this works: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
-            var link = get_post_link(thread.board, thread.no, p1);
+            var link = get_post_link(thread.website, thread.board, thread.no, p1);
             return `a target="_blank" rel="noopener noreferrer" href="${link}"`;
         }
 
@@ -355,7 +391,6 @@
     function display_posts(thread, posts) {
         if (!posts) { return; }
 
-        var board = thread.board;
         var op_no = thread.no;
         var sorted = posts.sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
         var k = thread.replies_to_display || replies_to_display;
@@ -404,14 +439,19 @@
     var positive_filter_regex = null;
     var neg_filter_regex = null;
     // const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr"];
-    const default_boards = ["wsr", "cm"]; // DEBUG
+    const default_boards = ["wsr", "lainchan:r"]; // DEBUG
     var boards_map = {};
 
     function init_boards_map(board_string) {
         const list = board_string.trim().split(' ');
         boards_map = {};
-        for (const board of list) {
-            boards_map[board] = true;
+        for (const board_code of list) {
+            const [website, board] = board_code.split(':');
+            if (board) {
+                boards_map[board] = website;
+            } else {
+                boards_map[website] = "4chan";
+            }
         }
     }
 
@@ -497,7 +537,7 @@
     }
 
     function has_many_replies_q(thread) {
-        const stat = statistics_get(thread.board);
+        const stat = statistics_get(thread.website, thread.board);
         if (thread.replies > stat.threshold) {
             return true;
         }
@@ -589,8 +629,8 @@
     }
 
     async function main_loop() {
-        var list = Object.keys(boards_map);
-        var poll = list.map(board => get_threads("4chan", board));
+        var list = Object.entries(boards_map);
+        var poll = list.map(([board, website]) => get_threads(website, board));
         var current = (await Promise.all(poll)).flat();
 
         for (const thread of current) {
@@ -606,7 +646,7 @@
             }
         }
 
-        list.forEach(update_statistics);
+        list.forEach(([board, website]) => update_statistics(website, board));
 
         for (const [k, thread] of Object.entries(all_threads)) {
             if (ok_thread_q(thread)) {
