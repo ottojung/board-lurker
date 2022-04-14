@@ -325,6 +325,7 @@
         const thread = all_threads[thread_no];
         const current = thread.replies_to_display || replies_to_display;
         thread.replies_to_display = current + 5;
+        thread.cache.html = null;
         redraw();
     }
 
