@@ -217,8 +217,18 @@
 
     function get_post_link(website, board, thread_id, post_id) {
         switch (website) {
-        case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
-        case "lainchan": return `https://lainchan.org/${board}/res/${thread_id.toString()}/#p${post_id.toString()}`;
+        case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}`;
+        case "lainchan": return `https://lainchan.org/${board}/res/${thread_id.toString()}.html#${post_id.toString()}`;
+        default:
+            console.error(`Uknown website for a post link "${website}"`);
+            return null;
+        }
+    }
+
+    function get_relinker_link(website, board, thread_id, match) {
+        switch (website) {
+        case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/${match}`;
+        case "lainchan": return `https://lainchan.org/${match}`;
         default:
             console.error(`Uknown website for a post link "${website}"`);
             return null;
@@ -332,14 +342,26 @@
 </div>`);
     }
 
-    // TODO: handle vichan respones.
-    var responses_regex = /a href="#p(\d+)/g;
+    const responses_regex_4chan = /href="(#p\d+)"/g;
+    const responses_regex_vichan = /href="(\/[^ "]+)"/g;
 
-    function rank_posts_map(obj) {
+    function get_responses_regex(website) {
+        switch (website) {
+        case "4chan": return responses_regex_4chan;
+        case "lainchan": return responses_regex_vichan;
+        default:
+            console.error(`Uknown website for a responses regex "${website}"`);
+            return null;
+        }
+    }
+
+    function rank_posts_map(website, obj) {
+        const regex = get_responses_regex(website);
+
         for (const [key, value] of Object.entries(obj)) {
             var comment = value.com;
             if (comment) {
-                var match = comment.matchAll(responses_regex);
+                var match = comment.matchAll(regex);
                 for (const m of match) {
                     const to = m[1];
                     const recipient = obj[to];
@@ -351,22 +373,24 @@
         }
     }
 
-    function relink_post(thread, post) {
+    function relink_post(thread, regex, post) {
         function relinker(match, p1, offset, string) {
+            console.log({match, p1, offset, string});
             // how this works: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
-            var link = get_post_link(thread.website, thread.board, thread.no, p1);
-            return `a target="_blank" rel="noopener noreferrer" href="${link}"`;
+            var link = get_relinker_link(thread.website, thread.board, thread.no, p1);
+            return `target="_blank" rel="noopener noreferrer" href="${link}"`;
         }
 
         var comment = post.com;
         if (comment) {
-            post.com = comment.replace(responses_regex, relinker);
+            post.com = comment.replace(regex, relinker);
         }
     }
 
     function relink_posts(thread, posts) {
+        const regex = get_responses_regex(thread.website);
         for (const post of posts) {
-            relink_post(thread, post);
+            relink_post(thread, regex, post);
         }
     }
 
@@ -374,7 +398,7 @@
         var cache = thread.cache;
         if (!cache.posts_map) {
             cache.posts_map = make_posts_map(cache.posts_list);
-            rank_posts_map(cache.posts_map);
+            rank_posts_map(thread.website, cache.posts_map);
         }
     }
 
