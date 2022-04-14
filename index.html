@@ -650,23 +650,23 @@
     function init_filter() {
         let last_one = null;
         on_input_enter("my_filter", function(input) {
-            var text = input.value.trim();
+            var text = input.value
+                .trim()
+                .split('\n')
+                .map(s => s.trim())
+                .filter(s => s.length > 0)
+                .map(line => '(' + line + ')')
+                .join('|');
+
+            if (text === last_one) { return; }
+            last_one = text;
+
             if (text.length > 0) {
-                text = text
-                    .trim()
-                    .split('\n')
-                    .map(s => s.trim())
-                    .filter(s => s.length > 0)
-                    .map(line => '(' + line + ')')
-                    .join('|');
                 console.log(`New positive regex: "${text}"`);
                 positive_filter_regex = new RegExp(text, "i");
             } else {
                 positive_filter_regex = null;
             }
-
-            if (text === last_one) { return; }
-            last_one = text;
 
             refilter_and_redraw();
         });
@@ -675,23 +675,23 @@
     function init_neg_filter() {
         let last_one = null;
         on_input_enter("my_neg_filter", function(input) {
-            var text = input.value.trim();
+            var text = input.value
+                .trim()
+                .split('\n')
+                .map(s => s.trim())
+                .filter(s => s.length > 0)
+                .map(line => '(' + line + ')')
+                .join('|');
+
+            if (text === last_one) { return; }
+            last_one = text;
+
             if (text.length > 0) {
-                text = text
-                    .trim()
-                    .split('\n')
-                    .map(s => s.trim())
-                    .filter(s => s.length > 0)
-                    .map(line => '(' + line + ')')
-                    .join('|');
                 console.log(`New negative regex: "${text}"`);
                 neg_filter_regex = new RegExp(text, "i");
             } else {
                 neg_filter_regex = null;
             }
-
-            if (text === last_one) { return; }
-            last_one = text;
 
             refilter_and_redraw();
         });
