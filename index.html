@@ -172,7 +172,7 @@
 
         if (post.filename) {
             const file = {};
-            file.displayname = post.filename;
+            file.displayname = post.filename + post.ext;
             file.tn_height = post.tn_h;
             file.tn_width = post.tn_w;
 
@@ -806,7 +806,12 @@
 
     async function refilter_and_redraw() {
         to_redraw_threads = [];
-        for (const [k, thread] of Object.entries(all_threads)) {
+
+        const threads = Object.entries(all_threads)
+              .map(([k, thread]) => thread)
+              .sort((a, b) => compare_numbers(a.time, b.time));
+
+        for (const thread of threads) {
             if (ok_thread_q(thread)) {
                 to_redraw_threads.push(thread);
                 if (to_redraw_threads.length > max_threads_per_page) { break; }
@@ -817,7 +822,6 @@
 
         console.log(`Redrawing ${to_redraw_threads.length} threads`);
 
-        to_redraw_threads = to_redraw_threads.sort((a, b) => compare_numbers(a.time, b.time));
         redraw();
     }
 
