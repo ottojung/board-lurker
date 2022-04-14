@@ -375,7 +375,6 @@
 
     function relink_post(thread, regex, post) {
         function relinker(match, p1, offset, string) {
-            console.log({match, p1, offset, string});
             // how this works: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
             var link = get_relinker_link(thread.website, thread.board, thread.no, p1);
             return `target="_blank" rel="noopener noreferrer" href="${link}"`;
