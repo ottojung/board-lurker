@@ -165,6 +165,10 @@
     }
 
     const transform_4chan_style_post = (website, board) => (post) => {
+        if (post.ext == 'deleted') {
+            post.filename = null;
+        }
+
         if (post.filename) {
             const file = {};
             file.displayname = post.filename;
@@ -620,7 +624,7 @@
     var positive_filter_regex = null;
     var neg_filter_regex = null;
     const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr",
-                            "2ch:b", "2ch:zog", "2ch:",
+                            "2ch:b", "2ch:zog", "2ch:rf", "2ch:soc",
                             "lainchan:r", "lainchan:λ", "lainchan:tech", "lainchan:hum",
                             "wizardchan:lounge", "wizardchan:hob", "wizardchan:wiz"
                            ];
