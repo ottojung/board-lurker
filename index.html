@@ -94,8 +94,39 @@
         case "4chan": return `https://a.4cdn.org/${board}/catalog.json`;
         case "lainchan":
         case "wizardchan": return `https://${website_get_domain_name(website)}/${board}/catalog.json`;
+        case "2ch": return `https://2ch.hk/${board}/threads.json`;
         default:
-            console.error(`Uknown website "${website}"`);
+            console.error(`Uknown website for thread url "${website}"`);
+            return null;
+        }
+    }
+
+    function transform_2ch_thread(thread) {
+        thread.time = thread.timestamp;
+        delete thread.timestamp;
+        thread.com = thread.comment;
+        delete thread.comment;
+        thread.sub = thread.subject;
+        delete thread.subject;
+        thread.no = thread.num;
+        delete thread.num;
+        thread.replies = thread.posts_count;
+        delete thread.posts_count;
+        return thread;
+    }
+
+    function transform_get_threads_response(website, json) {
+        switch (website) {
+        case '4chan':
+        case 'lainchan':
+        case 'wizardchan':
+            return json;
+        case '2ch':
+            const threads = json.threads.map(transform_2ch_thread);
+            const page = 1;
+            return [{page, threads}];
+        default:
+            console.error(`Uknown website for thread transform "${website}"`);
             return null;
         }
     }
@@ -103,8 +134,9 @@
     async function get_threads(website, board) {
         var json = {};
         try {
-            var response = await fetch(get_website_thread_url(website, board));
-            json = await response.json();
+            const response = await fetch(get_website_thread_url(website, board));
+            const json0 = await response.json();
+            json = transform_get_threads_response(website, json0);
         } catch (ex) {
             console.log({"error": true, board, ex});
             return null;
@@ -132,8 +164,36 @@
         case 'lainchan':
         case 'wizardchan':
             return `https://${website_get_domain_name(website)}/${board}/res/${thread_id.toString()}.json`;
+        case '2ch':
+            return `https://2ch.hk/${board}/res/${thread_id}.json`;
         default:
-            console.error(`Uknown website "${website}"`);
+            console.error(`Uknown website for posts link "${website}"`);
+            return null;
+        }
+    }
+
+    function transform_posts_response(website, json) {
+        switch (website) {
+        case '4chan':
+        case 'lainchan':
+        case 'wizardchan':
+            return json;
+        case '2ch':
+            json.posts = json.threads[0].posts;
+            json.posts.forEach(post => {
+                post.time = post.timestamp;
+                delete post.timestamp;
+                post.no = post.num;
+                delete post.num;
+                post.com = post.comment;
+                delete post.comment;
+                post.sub = post.subject;
+                delete post.subject;
+            });
+            delete json.threads;
+            return json;
+        default:
+            console.error(`Uknown website for posts transform "${website}"`);
             return null;
         }
     }
@@ -146,7 +206,9 @@
                 return null;
             }
 
-            var json = await response.json();
+            const json = await response.json();
+            transform_posts_response(website, json);
+            console.log({json});
             return json.posts;
         } catch (ex) {
             console.log({"error": true, thread_id, ex});
@@ -157,6 +219,8 @@
     function make_posts_map(posts) {
         var ret = {};
         if (!posts) { return ret; }
+
+        console.log({posts});
 
         for (var i = 0; i < posts.length; i++) {
             var post = posts[i];
@@ -205,8 +269,10 @@
         case "lainchan":
         case "wizardchan":
             return `https://${website_get_domain_name(thread.website)}/${thread.board}/src/${post.tim}${post.ext}`;
+        case "2ch":
+            return `https://2ch.hk/FIXME1`; // FIXME
         default:
-            console.error(`Uknown website for a post file "${website}"`);
+            console.error(`Uknown website for a post file "${thread.website}"`);
             return null;
         }
     }
@@ -222,8 +288,10 @@
             } else {
                 return `https://${website_get_domain_name(thread.website)}/${thread.board}/thumb/${post.tim}${post.ext}`;
             }
+        case "2ch":
+            return `https://2ch.hk/FIXME2`; // FIXME
         default:
-            console.error(`Uknown website for a post file preview "${website}"`);
+            console.error(`Uknown website for a post file preview "${thread.website}"`);
             return null;
         }
     }
@@ -234,6 +302,8 @@
         case "lainchan":
         case "wizardchan":
             return `https://${website_get_domain_name(website)}/${board}/res/${thread_id.toString()}.html#${post_id.toString()}`;
+        case "2ch":
+            return `https://2ch.hk/${board}/res/${post_id}.html`;
         default:
             console.error(`Uknown website for a post link "${website}"`);
             return null;
@@ -245,6 +315,7 @@
         case "4chan": return "boards.4chan.org";
         case "lainchan": return "lainchan.org";
         case "wizardchan": return "wizchan.org";
+        case "2ch": return "2ch.hk";
         default:
             console.error(`Uknown website for a domain name "${website}"`);
             return null;
@@ -256,9 +327,10 @@
         case "4chan":
         case "lainchan":
         case "wizardchan":
+        case "2ch":
             return `https://${website_get_domain_name(website)}/${match}`;
         default:
-            console.error(`Uknown website for a post link "${website}"`);
+            console.error(`Uknown website for a local relinker link "${website}"`);
             return null;
         }
     }
@@ -268,9 +340,10 @@
         case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/${match}`;
         case "lainchan":
         case "wizardchan":
+        case "2ch":
             return `https://${website_get_domain_name(website)}/${match}`;
         default:
-            console.error(`Uknown website for a post link "${website}"`);
+            console.error(`Uknown website for a comment relinker link "${website}"`);
             return null;
         }
     }
@@ -310,6 +383,7 @@
         var thread_id = thread.no;
         var link = get_post_link(thread.website, board, thread_id, post.no);
         var now = unixtime_to_string(post.time);
+        var name = post.name ?? '';
         var comment = post.com ? post.com.toString() : '';
         var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
         var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_button_click(${thread_id})"/>` : '';
@@ -338,7 +412,7 @@
         ${subject}
         ${replyCount}
         <span class="nameBlock">
-          <span class="name"> ${post.name} </span>
+          <span class="name"> ${name} </span>
         </span>
         <span class="dateTime">${now}</span>
         <span class="postNum desktop">
@@ -426,6 +500,7 @@
     }
 
     function relink_posts(thread, posts) {
+        console.log({posts});
         for (const post of posts) {
             relink_post(thread, post);
         }
@@ -452,11 +527,10 @@
     function display_posts(thread, posts) {
         if (!posts) { return; }
 
-        var op_no = thread.no;
+        var op_no = parseInt(thread.no);
         var sorted = posts.sort((a, b) => compare_numbers(a.my_replies_count, b.my_replies_count));
         var k = thread.replies_to_display || replies_to_display;
-        for (var i = 0; i < posts.length; i++) {
-            var post = posts[i];
+        for (const post of posts) {
             if (post.no !== op_no) {
                 display_reply_post(thread, post);
                 if ((--k) == 0) { break; }
@@ -500,7 +574,7 @@
     var positive_filter_regex = null;
     var neg_filter_regex = null;
     // const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr"];
-    const default_boards = ["wsr", "lainchan:r", "wizardchan:lounge"]; // DEBUG
+    const default_boards = ["2ch:b"]; // DEBUG
     var boards_map = {};
 
     function init_boards_map(board_string) {
