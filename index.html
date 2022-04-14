@@ -858,6 +858,10 @@
                 if (is_positively_filtered(thread)) {
                     thread.cache.posts_list = null;
                 }
+            } else {
+                thread.cache.posts_list = list;
+                thread.cache.posts_map = null;
+                thread.cache.html = null;
             }
         }
         console.log(`There are ${to_load_threads.length} ok threads`);
