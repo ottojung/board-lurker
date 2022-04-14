@@ -364,7 +364,7 @@
 </div>`);
     }
 
-    const generic_responses_regex = /href="[^ "]*#p\d+"/g;
+    const generic_responses_regex = /href="[^ "]*#[a-zA-Z]*(\d+)"/g;
 
     function rank_posts_map(website, obj) {
         const regex = generic_responses_regex;
