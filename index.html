@@ -208,10 +208,6 @@
     }
 
     function transform_2ch_post(post) {
-        if (post.files?.length > 0) {
-            console.info({post});
-        }
-
         post.time = post.timestamp;
         delete post.timestamp;
         post.no = post.num;
