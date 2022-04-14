@@ -592,11 +592,15 @@
     function display_thread(thread) {
         if (thread.cache.html) { return; }
 
-        rank_posts(thread);
-        relink_posts(thread, thread.cache.posts_list);
         display_op_post(thread);
-        display_posts(thread, thread.cache.posts_list);
-        display_more_button(thread);
+
+        if (thread.cache.posts_list) {
+            rank_posts(thread);
+            relink_posts(thread, thread.cache.posts_list);
+            display_posts(thread, thread.cache.posts_list);
+            display_more_button(thread);
+        }
+
         append_delimiter_to_thread_div(thread);
     }
 
@@ -608,9 +612,11 @@
 
     async function reload_thread_posts(thread) {
         var list = await get_thread_posts(thread.website, thread.board, thread.no);
-        thread.cache.posts_list = list;
-        thread.cache.posts_map = null;
-        thread.cache.html = null;
+        if (list) {
+            thread.cache.posts_list = list;
+            thread.cache.posts_map = null;
+            thread.cache.html = null;
+        }
     }
 
     async function load_thread_posts(thread) {
@@ -856,7 +862,7 @@
                     thread.cache.posts_list = null;
                 }
             } else {
-                thread.cache.posts_list = list;
+                thread.cache.posts_list = null;
                 thread.cache.posts_map = null;
                 thread.cache.html = null;
             }
