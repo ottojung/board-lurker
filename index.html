@@ -27,7 +27,8 @@
     const thread_statistics = {};
     const statistics_span = 1000;
 
-    function statistics_get(board_code) {
+    function statistics_get(website, board) {
+        const board_code = make_board_code(website, board);
         const existing = thread_statistics[board_code];
         if (!existing) {
             var threshold = 0;
