@@ -591,16 +591,13 @@
 
     function display_thread(thread) {
         if (thread.cache.html) { return; }
+        if (!thread.cache.posts_list) { return; }
 
         display_op_post(thread);
-
-        if (thread.cache.posts_list) {
-            rank_posts(thread);
-            relink_posts(thread, thread.cache.posts_list);
-            display_posts(thread, thread.cache.posts_list);
-            display_more_button(thread);
-        }
-
+        rank_posts(thread);
+        relink_posts(thread, thread.cache.posts_list);
+        display_posts(thread, thread.cache.posts_list);
+        display_more_button(thread);
         append_delimiter_to_thread_div(thread);
     }
 
