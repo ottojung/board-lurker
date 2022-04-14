@@ -429,6 +429,14 @@
       </div>`;
     }
 
+    function pad_right(len, c, str) {
+        var ret = str;
+        for (var i = str.length; i < len; i++) {
+            ret += c;
+        }
+        return ret;
+    }
+
     function display_post(op_q, thread, post) {
         var board = thread.board;
         var board_code = make_board_code(thread.website, thread.board);
@@ -437,7 +445,8 @@
         var now = unixtime_to_string(post.time);
         var name = post.name ?? '';
         var comment = post.com ? post.com.toString() : '';
-        var subject = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
+        var subject0 = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
+        var subject = op_q ? subject0 : pad_right(50, '-', subject0);
         var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_button_click('${thread.website}', ${thread_id})"/>` : '';
         var boardTag = op_q ? `<b style='color:blue'> /${board_code}/ </b>` : '';
         var replies_count = op_q ? post.replies : post.my_replies_count;
