@@ -802,7 +802,7 @@
     }
 
     var to_redraw_threads = [];
-    const max_threads_per_page = 15;
+    const max_threads_per_page = 9;
 
     async function refilter_and_redraw() {
         to_redraw_threads = [];
@@ -817,8 +817,6 @@
                 if (to_redraw_threads.length > max_threads_per_page) { break; }
             }
         }
-
-        await Promise.all(to_redraw_threads.map(load_thread_posts));
 
         console.log(`Redrawing ${to_redraw_threads.length} threads`);
 
@@ -853,17 +851,18 @@
 
         list.forEach(([board, website]) => update_statistics(website, board));
 
-        var ok_thread_count = 0;
+        var to_load_threads = [];
         for (const [k, thread] of Object.entries(all_threads)) {
             if (ok_thread_q(thread)) {
-                ok_thread_count++;
+                to_load_threads.push(thread);
                 if (is_positively_filtered(thread)) {
                     thread.cache.posts_list = null;
                 }
             }
         }
-        console.log(`There are ${ok_thread_count} ok threads`);
+        console.log(`There are ${to_load_threads.length} ok threads`);
 
+        await Promise.all(to_load_threads.map(load_thread_posts));
         await refilter_and_redraw();
     }
 
