@@ -71,7 +71,8 @@
         // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
         stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
         const threshold_index = Math.floor(statistics_threshold * stat.ring.length);
-        stat.threshold = stat.sorted[threshold_index].replies;
+        const threshold_thread = stat.sorted[threshold_index];
+        stat.threshold = threshold_thread?.replies;
         console.log(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
     }
 
@@ -91,7 +92,8 @@
     function get_website_thread_url(website, board) {
         switch (website) {
         case "4chan": return `https://a.4cdn.org/${board}/catalog.json`;
-        case "lainchan": return `https://lainchan.org/${board}/catalog.json`;
+        case "lainchan":
+        case "wizardchan": return `https://${website_get_domain_name(website)}/${board}/catalog.json`;
         default:
             console.error(`Uknown website "${website}"`);
             return null;
@@ -127,7 +129,9 @@
     function get_thread_posts_link(website, board, thread_id) {
         switch (website) {
         case '4chan': return `https://a.4cdn.org/${board}/thread/${thread_id.toString()}.json`;
-        case 'lainchan': return `https://lainchan.org/${board}/res/${thread_id.toString()}.json`;
+        case 'lainchan':
+        case 'wizardchan':
+            return `https://${website_get_domain_name(website)}/${board}/res/${thread_id.toString()}.json`;
         default:
             console.error(`Uknown website "${website}"`);
             return null;
@@ -198,7 +202,9 @@
     function get_file_link(thread, post) {
         switch (thread.website) {
         case "4chan": return `https://i.4cdn.org/${thread.board}/${post.tim}${post.ext}`;
-        case "lainchan": return `https://lainchan.org/${thread.board}/src/${post.tim}${post.ext}`;
+        case "lainchan":
+        case "wizardchan":
+            return `https://${website_get_domain_name(thread.website)}/${thread.board}/src/${post.tim}${post.ext}`;
         default:
             console.error(`Uknown website for a post file "${website}"`);
             return null;
@@ -208,7 +214,14 @@
     function get_file_preview_link(thread, post) {
         switch (thread.website) {
         case "4chan": return `https://i.4cdn.org/${thread.board}/${post.tim}s.jpg`;
-        case "lainchan": return `https://lainchan.org/${thread.board}/thumb/${post.tim}.png`;
+        case "lainchan":
+            return `https://${website_get_domain_name(thread.website)}/${thread.board}/thumb/${post.tim}.png`;
+        case "wizardchan":
+            if (post.ext === '.mp4' || post.ext === '.webm') {
+                return `https://${website_get_domain_name(thread.website)}/${thread.board}/thumb/${post.tim}.jpg`;
+            } else {
+                return `https://${website_get_domain_name(thread.website)}/${thread.board}/thumb/${post.tim}${post.ext}`;
+            }
         default:
             console.error(`Uknown website for a post file preview "${website}"`);
             return null;
@@ -218,7 +231,9 @@
     function get_post_link(website, board, thread_id, post_id) {
         switch (website) {
         case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}`;
-        case "lainchan": return `https://lainchan.org/${board}/res/${thread_id.toString()}.html#${post_id.toString()}`;
+        case "lainchan":
+        case "wizardchan":
+            return `https://${website_get_domain_name(website)}/${board}/res/${thread_id.toString()}.html#${post_id.toString()}`;
         default:
             console.error(`Uknown website for a post link "${website}"`);
             return null;
@@ -229,6 +244,7 @@
         switch (website) {
         case "4chan": return "boards.4chan.org";
         case "lainchan": return "lainchan.org";
+        case "wizardchan": return "wizchan.org";
         default:
             console.error(`Uknown website for a domain name "${website}"`);
             return null;
@@ -239,6 +255,7 @@
         switch (website) {
         case "4chan":
         case "lainchan":
+        case "wizardchan":
             return `https://${website_get_domain_name(website)}/${match}`;
         default:
             console.error(`Uknown website for a post link "${website}"`);
@@ -249,7 +266,9 @@
     function get_comment_relinker_link(website, board, thread_id, match) {
         switch (website) {
         case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/${match}`;
-        case "lainchan": return `https://lainchan.org/${match}`;
+        case "lainchan":
+        case "wizardchan":
+            return `https://${website_get_domain_name(website)}/${match}`;
         default:
             console.error(`Uknown website for a post link "${website}"`);
             return null;
@@ -481,7 +500,7 @@
     var positive_filter_regex = null;
     var neg_filter_regex = null;
     // const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr"];
-    const default_boards = ["wsr", "lainchan:r"]; // DEBUG
+    const default_boards = ["wsr", "lainchan:r", "wizardchan:lounge"]; // DEBUG
     var boards_map = {};
 
     function init_boards_map(board_string) {
