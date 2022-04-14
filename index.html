@@ -619,8 +619,11 @@
     var filter_input = null;
     var positive_filter_regex = null;
     var neg_filter_regex = null;
-    // const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr"];
-    const default_boards = ["2ch:b"]; // DEBUG
+    const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr",
+                            "2ch:b", "2ch:zog", "2ch:",
+                            "lainchan:r", "lainchan:λ", "lainchan:tech", "lainchan:hum",
+                            "wizardchan:lounge", "wizardchan:hob", "wizardchan:wiz"
+                           ];
     var boards_map = {};
 
     function init_boards_map(board_string) {
