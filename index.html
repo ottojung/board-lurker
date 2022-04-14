@@ -397,7 +397,7 @@
 
     function delete_button_click(website, thread_id) {
         delete_thread(website, thread_id);
-        redraw();
+        refilter_and_redraw();
     }
 
     function show_files(thread, post) {
@@ -802,16 +802,13 @@
     }
 
     var to_redraw_threads = [];
+    var sorted_threads = null;
     const max_threads_per_page = 9;
 
     async function refilter_and_redraw() {
         to_redraw_threads = [];
 
-        const threads = Object.entries(all_threads)
-              .map(([k, thread]) => thread)
-              .sort((a, b) => compare_numbers(a.time, b.time));
-
-        for (const thread of threads) {
+        for (const thread of sorted_threads) {
             if (ok_thread_q(thread)) {
                 to_redraw_threads.push(thread);
                 if (to_redraw_threads.length > max_threads_per_page) { break; }
@@ -865,6 +862,8 @@
             }
         }
         console.log(`There are ${to_load_threads.length} ok threads`);
+
+        sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
 
         await Promise.all(to_load_threads.map(load_thread_posts));
         await refilter_and_redraw();
