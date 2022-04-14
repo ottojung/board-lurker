@@ -164,24 +164,74 @@
         }
     }
 
-    function transform_posts_response(website, json) {
+    const transform_4chan_style_post = (website, board) => (post) => {
+        if (post.filename) {
+            const file = {};
+            file.displayname = post.filename;
+            file.tn_height = post.tn_h;
+            file.tn_width = post.tn_w;
+
+            switch (website) {
+            case '4chan':
+                file.path = `/${board}/${post.tim}${post.ext}`;
+                break;
+            case 'lainchan':
+            case 'wizardchan':
+                file.path = `/${board}/src/${post.tim}${post.ext}`;
+                break;
+            default:
+                console.error(`Unknown website for transform 4chan style post ${website}`);
+                break;
+            }
+
+            switch (website) {
+            case "4chan":
+                file.thumbnail = `/${board}/${post.tim}s.jpg`;
+                break;
+            case "lainchan":
+                file.thumbnail = `/${board}/thumb/${post.tim}.png`;
+                break;
+            case "wizardchan":
+                if (post.ext === '.mp4' || post.ext === '.webm') {
+                    file.thumbnail = `/${board}/thumb/${post.tim}.jpg`;
+                } else {
+                    file.thumbnail = `/${board}/thumb/${post.tim}${post.ext}`;
+                }
+                break;
+            default:
+                console.error(`Uknown website for a post file preview "${website}"`);
+                break;
+            }
+
+            post.files = [file];
+        }
+    }
+
+    function transform_2ch_post(post) {
+        if (post.files?.length > 0) {
+            console.info({post});
+        }
+
+        post.time = post.timestamp;
+        delete post.timestamp;
+        post.no = post.num;
+        delete post.num;
+        post.com = post.comment;
+        delete post.comment;
+        post.sub = post.subject;
+        delete post.subject;
+    }
+
+    function transform_posts_response(website, board, thread_id, json) {
         switch (website) {
         case '4chan':
         case 'lainchan':
         case 'wizardchan':
+            json.posts.forEach(transform_4chan_style_post(website, board));
             return json;
         case '2ch':
-            json.posts = json.threads[0].posts;
-            json.posts.forEach(post => {
-                post.time = post.timestamp;
-                delete post.timestamp;
-                post.no = post.num;
-                delete post.num;
-                post.com = post.comment;
-                delete post.comment;
-                post.sub = post.subject;
-                delete post.subject;
-            });
+            json.posts = json.threads.map(t => t.posts).flat();
+            json.posts.forEach(transform_2ch_post);
             delete json.threads;
             return json;
         default:
@@ -199,8 +249,7 @@
             }
 
             const json = await response.json();
-            transform_posts_response(website, json);
-            console.log({json});
+            transform_posts_response(website, board, thread_id, json);
             return json.posts;
         } catch (ex) {
             console.log({"error": true, thread_id, ex});
@@ -211,8 +260,6 @@
     function make_posts_map(posts) {
         var ret = {};
         if (!posts) { return ret; }
-
-        console.log({posts});
 
         for (var i = 0; i < posts.length; i++) {
             var post = posts[i];
@@ -227,7 +274,7 @@
     var thread_div = null;
     function get_thread_div() {
         if (thread_div == null) {
-            thread_div = document.getElementsByClassName("thread")[0];
+            thread_div = document.getElementById("posts-form");
         }
         return thread_div;
     }
@@ -255,37 +302,8 @@
         }
     }
 
-    function get_file_link(thread, post) {
-        switch (thread.website) {
-        case "4chan": return `https://i.4cdn.org/${thread.board}/${post.tim}${post.ext}`;
-        case "lainchan":
-        case "wizardchan":
-            return `https://${website_get_domain_name(thread.website)}/${thread.board}/src/${post.tim}${post.ext}`;
-        case "2ch":
-            return `https://2ch.hk/FIXME1`; // FIXME
-        default:
-            console.error(`Uknown website for a post file "${thread.website}"`);
-            return null;
-        }
-    }
-
-    function get_file_preview_link(thread, post) {
-        switch (thread.website) {
-        case "4chan": return `https://i.4cdn.org/${thread.board}/${post.tim}s.jpg`;
-        case "lainchan":
-            return `https://${website_get_domain_name(thread.website)}/${thread.board}/thumb/${post.tim}.png`;
-        case "wizardchan":
-            if (post.ext === '.mp4' || post.ext === '.webm') {
-                return `https://${website_get_domain_name(thread.website)}/${thread.board}/thumb/${post.tim}.jpg`;
-            } else {
-                return `https://${website_get_domain_name(thread.website)}/${thread.board}/thumb/${post.tim}${post.ext}`;
-            }
-        case "2ch":
-            return `https://2ch.hk/FIXME2`; // FIXME
-        default:
-            console.error(`Uknown website for a post file preview "${thread.website}"`);
-            return null;
-        }
+    function get_resource_link(website, path) {
+        return `https://${website_get_files_domain_name(website)}${path}`;
     }
 
     function get_post_link(website, board, thread_id, post_id) {
@@ -305,6 +323,18 @@
     function website_get_domain_name(website) {
         switch (website) {
         case "4chan": return "boards.4chan.org";
+        case "lainchan": return "lainchan.org";
+        case "wizardchan": return "wizchan.org";
+        case "2ch": return "2ch.hk";
+        default:
+            console.error(`Uknown website for a domain name "${website}"`);
+            return null;
+        }
+    }
+
+    function website_get_files_domain_name(website) {
+        switch (website) {
+        case "4chan": return "i.4cdn.org";
         case "lainchan": return "lainchan.org";
         case "wizardchan": return "wizchan.org";
         case "2ch": return "2ch.hk";
@@ -369,6 +399,35 @@
         refilter_and_redraw();
     }
 
+    function show_files(thread, post) {
+        const files = post.files;
+        if (!files || files.length <= 0) {
+            return '';
+        }
+
+        var inner = '';
+
+        for (const file of files) {
+            const src = get_resource_link(thread.website, file.path);
+            const thumb = get_resource_link(thread.website, file.thumbnail);
+            const name = file.displayname;
+            inner += `
+      <figure class="post__image">
+        <figcaption class="post__file-attr">
+          <a class="desktop" target="_blank" href="${src}" title="${name}">${name}</a>
+        </figcaption>
+        <a href="${src}" class="post__image-link" target="_blank">
+          <img src="${thumb}" width="${file.tn_width}" height="${file.fn_height}" class="post__file-preview   " data-type="2" data-title="${name}" data-src="${src}">
+        </a>
+      </figure>`;
+        }
+
+        return `
+      <div class="post__images  post__images_type_${files.length > 1 ? 'multi' : 'single'}">
+        ${inner}
+      </div>`;
+    }
+
     function display_post(op_q, thread, post) {
         var board = thread.board;
         var board_code = make_board_code(thread.website, thread.board);
@@ -382,45 +441,45 @@
         var boardTag = op_q ? `<b style='color:blue'> /${board_code}/ </b>` : '';
         var replies_count = op_q ? post.replies : post.my_replies_count;
         var replyCount = replies_count ? `<span class="nameBlock"> (${replies_count}) </span>` : '';
-        var file_link = get_file_link(thread, post);
-        var file_preview = get_file_preview_link(thread, post);
-        var file = post.filename ? `
-<div class="file">
-  <div class="fileText">
-     File: <a href="${file_link}" target="_blank">${post.filename}${post.ext}</a>
-  </div>
-  <a class="fileThumb" href="${file_link}" target="_blank">
-    <img src="${file_preview}" alt="" data-md5="" style="" loading="lazy">
-  </a>
-</div>` : '';
+        var files = show_files(thread, post);
 
         append_html_to_thread(thread, `
-<div class="postContainer ${op_q ? 'opContainter' : 'replyContainer'}">
-  <div class="sideArrows"></div>
-    <div class="post ${op_q ? 'op' : 'reply'}">
-      <div class="postInfo desktop">
-        ${deleteButton}
-        ${boardTag}
-        ${subject}
-        ${replyCount}
-        <span class="nameBlock">
-          <span class="name"> ${name} </span>
+<div id="thread-${thread.no}" class="thread">
+  <div id="post-${post.no}" class="thread__${op_q ? 'oppost' : 'post'}">
+    <div class="post post_type_${op_q ? 'oppost' : 'reply'}" id="post-body-${post.no}" data-num="${post.no}">
+      <div class="post__details" id="post-details-${post.no}">
+        <span class="post__detailpart">
+          ${deleteButton}
         </span>
-        <span class="dateTime">${now}</span>
-        <span class="postNum desktop">
+        <span class="post__detailpart">
+          ${replyCount}
+        </span>
+        <span class="post__detailpart">
+          <span class="post__anon">${name}</span>
+          <span class="post__time">${now}</span>
+        </span>
+        <span class="post__detailpart">
+          ${boardTag}
+        </span>
+        <span class="post__detailpart">
           <a href="${link}" title="Link to this post" target="_blank" rel="noopener noreferrer">No.</a>
-          <!-- <a href="javascript:quote('${post.no.toString()}');">${post.no.toString()}</a> -->
+        </span>
+        <span class="post__detailpart">
+          ${subject}
         </span>
       </div>
-      ${file}
-      <div> ${comment} </div>
+      ${files}
+      <article id="m${post.no}" class="post__message${op_q ? ' post__message_op' : ''}">
+        ${comment}
+      </article></div>
     </div>
+   </div>
   </div>
 </div>`);
     }
 
     function display_op_post(thread) {
-        display_post(true, thread, thread);
+        display_post(true, thread, thread.cache.posts_list[0]);
     }
 
     function display_reply_post(thread, post) {
@@ -492,7 +551,6 @@
     }
 
     function relink_posts(thread, posts) {
-        console.log({posts});
         for (const post of posts) {
             relink_post(thread, post);
         }
@@ -812,11 +870,6 @@
   <input id="my_boards_list" placeholder="Boads list" submit=""/>
   </br></br>
 
-  <form name="delform" id="delform">
-    <div class="board">
-      <div class="thread">
-
-      </div>
-    </div>
-  </form>
+  <div id="posts-form">
+  </div>
 </body>
