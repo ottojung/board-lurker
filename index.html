@@ -848,13 +848,16 @@
 
         list.forEach(([board, website]) => update_statistics(website, board));
 
+        var ok_thread_count = 0;
         for (const [k, thread] of Object.entries(all_threads)) {
             if (ok_thread_q(thread)) {
+                ok_thread_count++;
                 if (is_positively_filtered(thread)) {
                     thread.cache.posts_list = null;
                 }
             }
         }
+        console.log(`There are ${ok_thread_count} ok threads`);
 
         await refilter_and_redraw();
     }
