@@ -635,6 +635,7 @@
     var filter_input = null;
     var positive_filter_regex = null;
     var neg_filter_regex = null;
+    var is_search_mode = false;
     const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr",
                             "2ch:b", "2ch:zog", "2ch:rf", "2ch:soc",
                             "lainchan:r", "lainchan:λ", "lainchan:tech", "lainchan:hum",
@@ -705,7 +706,20 @@
             if (text === last_one) { return; }
             last_one = text;
 
-            if (text.length > 0) {
+            if (text === '(*)') {
+                if (!is_search_mode) {
+                    console.log(`Search mode turned on`);
+                }
+                is_search_mode = true;
+            } else {
+                if (is_search_mode) {
+                    console.log(`Search mode turned off`);
+                }
+                is_search_mode = false;
+            }
+
+            if (is_search_mode) {
+            } else if (text.length > 0) {
                 console.log(`New negative regex: "${text}"`);
                 neg_filter_regex = new RegExp(text, "i");
             } else {
@@ -799,6 +813,10 @@
 
         if (is_positively_filtered(thread)) {
             return true;
+        }
+
+        if (is_search_mode) {
+            return false;
         }
 
         if (is_negatively_filtered(thread)) {
