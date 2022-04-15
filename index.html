@@ -70,14 +70,13 @@
     }
 
     function get_thread_filter_text(thread) {
-        const cache = thread.cache;
-        if (cache.filter_text) {
-            return cache.filter_text;
+        if (thread.filter_text) {
+            return thread.filter_text;
         } else {
             var sub = thread.sub ? thread.sub : '';
             var com = thread.com ? thread.com : '';
             var text = '/' + make_board_code(thread.website, thread.board) + '/' + ' ' + sub + ' ' + com;
-            cache.filter_text = text;
+            thread.filter_text = text;
             return text;
         }
     }
@@ -137,10 +136,8 @@
 
         var joined = [];
 
-        for (var i = 0; i < json.length; i++) {
-            var threads = json[i].threads;
-            for (var k = 0; k < threads.length; k++) {
-                var thread = threads[k];
+        for (const threads in json) {
+            for (const thread in threads) {
                 thread.board = board;
                 thread.website = website;
                 thread.cache = {};
@@ -826,9 +823,7 @@
                     thread.cache.posts_list = null;
                 }
             } else {
-                thread.cache.posts_list = null;
-                thread.cache.posts_map = null;
-                thread.cache.html = null;
+                thread.cache = {};
             }
         }
         console.log(`There are ${to_load_threads.length} ok threads`);
