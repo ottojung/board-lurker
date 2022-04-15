@@ -688,7 +688,7 @@
                 positive_filter_regex = null;
             }
 
-            refilter_and_redraw();
+            reload_and_redraw();
         });
     }
 
@@ -713,7 +713,7 @@
                 neg_filter_regex = null;
             }
 
-            refilter_and_redraw();
+            reload_and_redraw();
         });
     }
 
@@ -815,7 +815,29 @@
 
     var to_redraw_threads = [];
     var sorted_threads = null;
-    const max_threads_per_page = 9;
+    const max_threads_per_page = 5;
+
+    async function reload_and_redraw() {
+        var to_load_threads = [];
+        for (const [k, thread] of Object.entries(all_threads)) {
+            if (ok_thread_q(thread)) {
+                to_load_threads.push(thread);
+                if (is_positively_filtered(thread)) {
+                    thread.cache.posts_list = null;
+                }
+            } else {
+                thread.cache.posts_list = null;
+                thread.cache.posts_map = null;
+                thread.cache.html = null;
+            }
+        }
+        console.log(`There are ${to_load_threads.length} ok threads`);
+
+        sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
+
+        await Promise.all(to_load_threads.map(load_thread_posts));
+        await refilter_and_redraw();
+    }
 
     async function refilter_and_redraw() {
         to_redraw_threads = [];
@@ -823,7 +845,7 @@
         for (const thread of sorted_threads) {
             if (ok_thread_q(thread)) {
                 to_redraw_threads.push(thread);
-                if (to_redraw_threads.length > max_threads_per_page) { break; }
+                if (to_redraw_threads.length >= max_threads_per_page) { break; }
             }
         }
 
@@ -860,25 +882,7 @@
 
         list.forEach(([board, website]) => update_statistics(website, board));
 
-        var to_load_threads = [];
-        for (const [k, thread] of Object.entries(all_threads)) {
-            if (ok_thread_q(thread)) {
-                to_load_threads.push(thread);
-                if (is_positively_filtered(thread)) {
-                    thread.cache.posts_list = null;
-                }
-            } else {
-                thread.cache.posts_list = null;
-                thread.cache.posts_map = null;
-                thread.cache.html = null;
-            }
-        }
-        console.log(`There are ${to_load_threads.length} ok threads`);
-
-        sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
-
-        await Promise.all(to_load_threads.map(load_thread_posts));
-        await refilter_and_redraw();
+        reload_and_redraw();
     }
 
     function main() {
