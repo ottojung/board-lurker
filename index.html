@@ -136,8 +136,8 @@
 
         var joined = [];
 
-        for (const threads in json) {
-            for (const thread in threads) {
+        for (const obj of json) {
+            for (const thread of obj.threads) {
                 thread.board = board;
                 thread.website = website;
                 thread.cache = {};
