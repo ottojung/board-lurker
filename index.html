@@ -61,12 +61,14 @@
 
     function update_statistics(website, board) {
         const stat = statistics_get(website, board);
-        // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
-        stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
-        const threshold_index = Math.floor(statistics_threshold * stat.ring.length);
-        const threshold_thread = stat.sorted[threshold_index];
-        stat.threshold = threshold_thread?.replies;
-        console.log(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
+        if (!stat.sorted) {
+            // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
+            stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
+            const threshold_index = Math.floor(statistics_threshold * stat.ring.length);
+            const threshold_thread = stat.sorted[threshold_index];
+            stat.threshold = threshold_thread?.replies;
+            console.log(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
+        }
     }
 
     function get_thread_filter_text(thread) {
