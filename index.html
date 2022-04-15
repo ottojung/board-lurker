@@ -846,12 +846,11 @@
             }
         }
 
-        console.log(`Redrawing ${to_redraw_threads.length} threads`);
-
         redraw();
     }
 
     function redraw() {
+        // console.log(`Redrawing ${to_redraw_threads.length} threads`);
         for (const thread of to_redraw_threads) {
             if (thread.deleted) { continue; }
             display_thread(thread);
