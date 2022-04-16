@@ -244,7 +244,7 @@
         try {
             var response = await fetch(get_thread_posts_link(website, board, thread_id));
             if (response.status === 404) {
-                all_threads[website + thread_id].deleted = true;
+                all_threads[website + board + thread_id].deleted = true;
                 return null;
             }
 
@@ -388,14 +388,14 @@
         return dateStr;
     }
 
-    function delete_thread(website, thread_id) {
-        var thread = all_threads[website + thread_id];
+    function delete_thread(website, board, thread_id) {
+        var thread = all_threads[website + board + thread_id];
         thread.deleted = true;
         thread.cache = {};
     }
 
-    function delete_button_click(website, thread_id) {
-        delete_thread(website, thread_id);
+    function delete_button_click(website, board, thread_id) {
+        delete_thread(website, board, thread_id);
         refilter_and_redraw();
     }
 
@@ -446,7 +446,7 @@
         var comment = post.com ? post.com.toString() : '';
         var subject0 = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
         var subject = op_q ? subject0 : pad_right(50, '-', subject0);
-        var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_button_click('${thread.website}', ${thread_id})"/>` : '';
+        var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_button_click('${thread.website}', '${board}', ${thread_id})"/>` : '';
         var boardTag = op_q ? `<b style='color:blue'> /${board_code}/ </b>` : '';
         var replies_count = op_q ? thread.replies : post.my_replies_count;
         var replyCount = replies_count ? `<span class="nameBlock"> (${replies_count}) </span>` : '';
@@ -495,8 +495,8 @@
         display_post(false, thread, post);
     }
 
-    function more_button_click(website, thread_no) {
-        const thread = all_threads[website + thread_no];
+    function more_button_click(website, board, thread_no) {
+        const thread = all_threads[website + board + thread_no];
         const current = thread.replies_to_display || replies_to_display;
         thread.replies_to_display = current + 5;
         thread.cache.html = null;
@@ -504,7 +504,7 @@
     }
 
     function display_more_button(thread) {
-        const moreButton = `<input type="button" id="more-${thread.no}" value="more" onclick="more_button_click('${thread.website}', ${thread.no})"/>`;
+        const moreButton = `<input type="button" id="more-${thread.no}" value="more" onclick="more_button_click('${thread.website}', '${thread.board}', ${thread.no})"/>`;
         append_html_to_thread(thread, `
 <div class="postContainer replyContainer">
   <div class="sideArrows"></div>
@@ -883,9 +883,9 @@
 
         for (const thread of current) {
             if (!thread) { continue; }
-            const existing = all_threads[thread.website + thread.no];
+            const existing = all_threads[thread.website + thread.board + thread.no];
             if (!existing) {
-                all_threads[thread.website + thread.no] = thread;
+                all_threads[thread.website + thread.board + thread.no] = thread;
                 append_statistics(thread);
             } else {
                 for (const [key, value] of Object.entries(thread)) {
