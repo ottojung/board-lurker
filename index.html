@@ -57,18 +57,16 @@
         }
     }
 
-    const statistics_threshold = 0.95;
-
     function update_statistics(website, board) {
         const stat = statistics_get(website, board);
-        if (!stat.sorted) {
-            // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
-            stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
-            const threshold_index = Math.floor(statistics_threshold * stat.ring.length);
-            const threshold_thread = stat.sorted[threshold_index];
-            stat.threshold = threshold_thread?.replies;
-            console.log(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
-        }
+        // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
+        stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
+        const len = stat.ring.length;
+        const perc = 1 - boards_perc[website + board];
+        const threshold_index = Math.round(perc * (len - 1));
+        const threshold_thread = stat.sorted[threshold_index];
+        stat.threshold = threshold_thread?.replies;
+        console.log(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
     }
 
     function get_thread_filter_text(thread) {
@@ -636,23 +634,26 @@
     var positive_filter_regex = null;
     var neg_filter_regex = null;
     var is_search_mode = false;
-    const default_boards = ["pol", "bant", "t", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr",
-                            "2ch:b", "2ch:zog", "2ch:rf", "2ch:soc",
+    const default_boards = ["pol%1", "bant%1", "g%2", "sci", "lit", "h", "cm", "gif", "wsg", "wsr",
+                            "2ch:b%1", "2ch:zog%2", "2ch:rf", "2ch:soc",
                             "lainchan:r", "lainchan:λ", "lainchan:tech", "lainchan:hum",
                             "wizardchan:lounge", "wizardchan:hob", "wizardchan:wiz"
                            ];
     var boards_map = {};
+    var boards_perc = {};
+    var boards_default_perc = 3;
 
     function init_boards_map(board_string) {
         const list = board_string.trim().split(' ');
         boards_map = {};
-        for (const board_code of list) {
-            const [website, board] = board_code.split(':');
-            if (board) {
-                boards_map[board] = website;
-            } else {
-                boards_map[website] = "4chan";
-            }
+        for (const code of list) {
+            const [board_code, perc_s] = code.split('%');
+            const perc = (perc_s ? parseFloat(perc_s) : boards_default_perc) / 100;
+            const [website0, board0] = board_code.split(':');
+            const website = board0 ? website0 : "4chan";
+            const board = board0 ? board0 : website0;
+            boards_perc[website + board] = perc;
+            boards_map[board] = website;
         }
     }
 
@@ -764,7 +765,7 @@
 
     function has_many_replies_q(thread) {
         const stat = statistics_get(thread.website, thread.board);
-        if (thread.replies > stat.threshold) {
+        if (thread.replies >= stat.threshold) {
             return true;
         }
 
@@ -835,10 +836,13 @@
     const max_threads_per_page = 1;
 
     async function reload_and_redraw() {
-        var to_load_threads = [];
+        const to_load_threads = [];
+        const count_stat = {};
         for (const [k, thread] of Object.entries(all_threads)) {
             if (ok_thread_q(thread)) {
                 to_load_threads.push(thread);
+                const current = count_stat[thread.board] ?? 0;
+                count_stat[thread.board] = current + 1;
                 if (is_positively_filtered(thread)) {
                     thread.cache.posts_list = null;
                 }
@@ -846,7 +850,7 @@
                 thread.cache = {};
             }
         }
-        console.log(`There are ${to_load_threads.length} ok threads`);
+        console.log(`There are ${to_load_threads.length} ok threads`, count_stat);
 
         sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
 
