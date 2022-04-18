@@ -115,12 +115,10 @@
             no: 'num',
             replies: 'posts_count',
         });
-        return thread;
     }
 
     function transform_9chan_thread(thread) {
         transform_9chan_style_post(thread);
-        return thread;
     }
 
     function transform_get_threads_response(website, json) {
@@ -130,12 +128,14 @@
         case 'wizardchan':
             return json;
         case '9chan': {
-            const threads = json.map(transform_9chan_thread);
+            const threads = json;
+            threads.forEach(transform_9chan_thread);
             const page = 1;
             return [{page, threads}];
         }
         case '2ch': {
-            const threads = json.threads.map(transform_2ch_thread);
+            const threads = json.threads;
+            threads.forEach(transform_2ch_thread);
             const page = 1;
             return [{page, threads}];
         }
