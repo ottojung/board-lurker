@@ -66,7 +66,7 @@
         const threshold_index = Math.round(perc * (len - 1));
         const threshold_thread = stat.sorted[threshold_index];
         stat.threshold = threshold_thread?.replies;
-        console.log(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
+        console.info(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
     }
 
     function get_thread_filter_text(thread) {
@@ -684,7 +684,7 @@
             last_one = text;
 
             if (text.length > 0) {
-                console.log(`New positive regex: "${text}"`);
+                console.info(`New positive regex: "${text}"`);
                 positive_filter_regex = new RegExp(text, "i");
             } else {
                 positive_filter_regex = null;
@@ -710,19 +710,19 @@
 
             if (text === '(*)') {
                 if (!is_search_mode) {
-                    console.log(`Search mode turned on`);
+                    console.info(`Search mode turned on`);
                 }
                 is_search_mode = true;
             } else {
                 if (is_search_mode) {
-                    console.log(`Search mode turned off`);
+                    console.info(`Search mode turned off`);
                 }
                 is_search_mode = false;
             }
 
             if (is_search_mode) {
             } else if (text.length > 0) {
-                console.log(`New negative regex: "${text}"`);
+                console.info(`New negative regex: "${text}"`);
                 neg_filter_regex = new RegExp(text, "i");
             } else {
                 neg_filter_regex = null;
@@ -851,11 +851,14 @@
                 thread.cache = {};
             }
         }
-        console.log(`There are ${to_load_threads.length} ok threads`, count_stat);
+        console.info(`There are ${to_load_threads.length} ok threads`, count_stat);
 
         sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
 
         await Promise.all(to_load_threads.map(load_thread_posts));
+
+        console.info("Loaded all of them");
+
         await refilter_and_redraw();
     }
 
@@ -873,7 +876,7 @@
     }
 
     function redraw() {
-        // console.log(`Redrawing ${to_redraw_threads.length} threads`);
+        // console.info(`Redrawing ${to_redraw_threads.length} threads`);
         for (const thread of to_redraw_threads) {
             if (thread.deleted) { continue; }
             display_thread(thread);
@@ -908,7 +911,7 @@
         main_loop().then(_ => setTimeout(main, 10 * 60 * 1000));
     }
 
-    console.log("Start");
+    console.info("Start");
     document.addEventListener('DOMContentLoaded', (event) => {
         main();
         init_filter();
