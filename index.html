@@ -130,7 +130,7 @@
             const json0 = await response.json();
             json = transform_get_threads_response(website, json0);
         } catch (ex) {
-            console.log({"error": true, board, ex});
+            console.error("error getting threads", { board, ex });
             return null;
         }
 
@@ -250,7 +250,7 @@
             transform_posts_response(website, board, thread_id, json);
             return json.posts;
         } catch (ex) {
-            console.log({"error": true, thread_id, ex});
+            console.error("error getting thread posts", { thread_id, ex });
             return null;
         }
     }
