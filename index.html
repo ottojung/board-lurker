@@ -119,13 +119,7 @@
     }
 
     function transform_9chan_thread(thread) {
-        translate_thread_many(thread, {
-            time: 'created_at',
-            com: 'content_html',
-            sub: 'subject',
-            no: 'board_id',
-            replies: 'reply_count',
-        });
+        transform_9chan_style_post(thread);
         return thread;
     }
 
@@ -179,7 +173,7 @@
     function get_thread_posts_link(website, board, thread_id) {
         switch (website) {
         case '4chan': return `https://a.4cdn.org/${board}/thread/${thread_id.toString()}.json`;
-        case '9chan': return `https://${website_get_domain_name(website)}/${board}/thread/${thread_id.toString()}.json`;
+        case '9chan': return `https://${website_get_domain_name(website)}/${board}/thread/${thread_id}.json`;
         case 'lainchan':
         case 'wizardchan':
         case '2ch':
@@ -239,13 +233,14 @@
         }
     }
 
-    const transform_9chan_style_post = (website, board) => (post) => {
+    function transform_9chan_style_post(post) {
         translate_thread_many(post, {
             time: 'created_at',
             no: 'board_id',
             com: 'content_html',
             sub: 'subject',
             files: 'attachments',
+            replies: 'reply_count',
         });
 
         post.files.forEach(att => {
@@ -275,13 +270,12 @@
             return json;
         case '9chan':
             translate_thread_many(json, { posts: 'replies' });
-            json.posts.forEach(transform_9chan_style_post(website, board));
+            json.posts.forEach(transform_9chan_style_post);
             return json;
         case '2ch':
             translate_thread_many(json, { posts: 'threads' });
             json.posts = json.posts.map(t => t.posts).flat();
             json.posts.forEach(transform_2ch_post);
-            delete json.threads;
             return json;
         default:
             console.error(`Uknown website for posts transform "${website}"`);
@@ -544,7 +538,15 @@
     }
 
     function display_op_post(thread) {
-        display_post(true, thread, thread.cache.posts_list[0]);
+        const first = thread.cache.posts_list[0];
+        var op_post = null;
+        if (first.no == thread.no) {
+            op_post = first;
+        } else {
+            op_post = thread;
+        }
+
+        display_post(true, thread, op_post);
     }
 
     function display_reply_post(thread, post) {
