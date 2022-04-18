@@ -859,10 +859,10 @@
 
         console.info("Loaded all of them");
 
-        await refilter_and_redraw();
+        refilter_and_redraw();
     }
 
-    async function refilter_and_redraw() {
+    function refilter_and_redraw() {
         to_redraw_threads = [];
 
         for (const thread of sorted_threads) {
