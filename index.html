@@ -94,42 +94,38 @@
         }
     }
 
-    function translate_thread(thread, name, newname) {
-        thread[newname] = thread[name];
-        delete thread[name];
+    function translate_thread(thread, newname, name) {
+        if (name != newname) {
+            thread[newname] = thread[name];
+            delete thread[name];
+        }
     }
 
     function translate_thread_many(thread, map) {
-        for (const [name, newname] of Object.entries(map)) {
-            
+        for (const [newname, name] of Object.entries(map)) {
+            translate_thread(thread, newname, name);
         }
     }
 
     function transform_2ch_thread(thread) {
-        thread.time = thread.timestamp;
-        delete thread.timestamp;
-        thread.com = thread.comment;
-        delete thread.comment;
-        thread.sub = thread.subject;
-        delete thread.subject;
-        thread.no = thread.num;
-        delete thread.num;
-        thread.replies = thread.posts_count;
-        delete thread.posts_count;
+        translate_thread_many(thread, {
+            time: 'timestamp',
+            com: 'comment',
+            sub: 'subject',
+            no: 'num',
+            replies: 'posts_count',
+        });
         return thread;
     }
 
     function transform_9chan_thread(thread) {
-        thread.time = thread.timestamp;
-        delete thread.timestamp;
-        thread.com = thread.comment;
-        delete thread.comment;
-        thread.sub = thread.subject;
-        delete thread.subject;
-        thread.no = thread.post_id;
-        delete thread.post_id;
-        thread.replies = thread.posts_count;
-        delete thread.posts_count;
+        translate_thread_many(thread, {
+            time: 'created_at',
+            com: 'content_html',
+            sub: 'subject',
+            no: 'board_id',
+            replies: 'reply_count',
+        });
         return thread;
     }
 
@@ -140,7 +136,7 @@
         case 'wizardchan':
             return json;
         case '9chan': {
-            const threads = json;
+            const threads = json.map(transform_9chan_thread);
             const page = 1;
             return [{page, threads}];
         }
@@ -183,12 +179,11 @@
     function get_thread_posts_link(website, board, thread_id) {
         switch (website) {
         case '4chan': return `https://a.4cdn.org/${board}/thread/${thread_id.toString()}.json`;
-        case '9chan':
+        case '9chan': return `https://${website_get_domain_name(website)}/${board}/thread/${thread_id.toString()}.json`;
         case 'lainchan':
         case 'wizardchan':
-            return `https://${website_get_domain_name(website)}/${board}/res/${thread_id.toString()}.json`;
         case '2ch':
-            return `https://2ch.hk/${board}/res/${thread_id}.json`;
+            return `https://${website_get_domain_name(website)}/${board}/res/${thread_id.toString()}.json`;
         default:
             console.error(`Uknown website for posts link "${website}"`);
             return null;
@@ -244,27 +239,47 @@
         }
     }
 
+    const transform_9chan_style_post = (website, board) => (post) => {
+        translate_thread_many(post, {
+            time: 'created_at',
+            no: 'board_id',
+            com: 'content_html',
+            sub: 'subject',
+            files: 'attachments',
+        });
+
+        post.files.forEach(att => {
+            att.displayname = att.filename;
+            att.tn_height = att.thumbnail.file_height;
+            att.tn_width = att.thumbnail.file_width;
+            att.path = att.file_url;
+            att.thumbnail = att.thumbnail_url;
+        });
+    };
+
     function transform_2ch_post(post) {
-        post.time = post.timestamp;
-        delete post.timestamp;
-        post.no = post.num;
-        delete post.num;
-        post.com = post.comment;
-        delete post.comment;
-        post.sub = post.subject;
-        delete post.subject;
+        translate_thread_many(post, {
+            time: 'timestamp',
+            no: 'num',
+            com: 'comment',
+            sub: 'subject',
+        });
     }
 
     function transform_posts_response(website, board, thread_id, json) {
         switch (website) {
         case '4chan':
-        case '9chan':
         case 'lainchan':
         case 'wizardchan':
             json.posts.forEach(transform_4chan_style_post(website, board));
             return json;
+        case '9chan':
+            translate_thread_many(json, { posts: 'replies' });
+            json.posts.forEach(transform_9chan_style_post(website, board));
+            return json;
         case '2ch':
-            json.posts = json.threads.map(t => t.posts).flat();
+            translate_thread_many(json, { posts: 'threads' });
+            json.posts = json.posts.map(t => t.posts).flat();
             json.posts.forEach(transform_2ch_post);
             delete json.threads;
             return json;
@@ -343,13 +358,14 @@
 
     function get_post_link(website, board, thread_id, post_id) {
         switch (website) {
-        case "4chan": return `https://boards.4chan.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}`;
+        case "4chan":
+             return `https://${website_get_domain_name(website)}/${board}/thread/${thread_id}/#p${post_id}`;
         case '9chan':
+             return `https://${website_get_domain_name(website)}/${board}/thread/${thread_id}#${post_id}`;
         case "lainchan":
         case "wizardchan":
-            return `https://${website_get_domain_name(website)}/${board}/res/${thread_id.toString()}.html#${post_id.toString()}`;
         case "2ch":
-            return `https://2ch.hk/${board}/res/${post_id}.html`;
+            return `https://${website_get_domain_name(website)}/${board}/res/${thread_id}.html#${post_id}`;
         default:
             console.error(`Uknown website for a post link "${website}"`);
             return null;
