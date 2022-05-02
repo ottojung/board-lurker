@@ -98,7 +98,7 @@
         const speed = stat.speed;
         const min_speed = get_min_speed();
         const max_speed = get_max_speed();
-        const speed_rel = intrapolate(0, max_speed, speed)
+        const speed_rel = intrapolate(min_speed / 2, max_speed, speed)
 
         const replies = thread.replies;
         const threshold = stat.threshold;
@@ -112,7 +112,7 @@
         const time_rounded = Math.round(thread.time / (10 * 60));
         const time = intrapolate(time_min_rounded, now_rounded, time_rounded);
 
-        const repl_speed_factor = Math.pow(speed_rel, 1/3) * replies_rel_capped;
+        const repl_speed_factor = Math.pow(speed_rel, 1/2) * replies_rel_capped;
         const time_factor = time;
         return repl_speed_factor * time_factor;
     }
