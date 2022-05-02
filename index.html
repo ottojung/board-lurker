@@ -25,7 +25,7 @@
   <script>
 
     const thread_statistics = {};
-    const statistics_span = 10000;
+    const statistics_span = 50;
 
     function statistics_get(website, board) {
         const board_code = make_board_code(website, board);
@@ -35,7 +35,8 @@
             var ring = [];
             var index = 0;
             var sorted = null;
-            var stat = { ring, threshold, index, sorted };
+            var speed = 0;
+            var stat = { ring, threshold, index, sorted, speed };
             thread_statistics[board_code] = stat;
             return stat;
         } else {
@@ -66,7 +67,29 @@
         const threshold_index = Math.round(perc * (len - 1));
         const threshold_thread = stat.sorted[threshold_index];
         stat.threshold = threshold_thread?.replies;
-        console.info(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
+        const times = stat.ring.map((t) => t.time).filter((n) => typeof(n) == 'number');
+        const first_thread = times.reduce((a, b) => Math.max(a, b), 0);
+        const last_thread = times.reduce((a, b) => Math.min(a, b), 999999999999999999);
+        stat.speed = (first_thread - last_thread) / len;
+        // console.info(`New threshold for /${make_board_code(website, board)}/ is ${stat.threshold}. The number of threads is ${stat.ring.length}`);
+        const speed_view = Math.round(stat.speed / 60);
+        console.info(`Speed of /${make_board_code(website, board)}/ is ${speed_view}. The number of threads is ${stat.ring.length}. The threshold is ${stat.threshold}`);
+    }
+
+    function intrapolate(start, end, y) {
+        return (y - start) / (end - start);
+    }
+
+    function get_thread_rating(thread) {
+        const board = thread.board;
+        const website = thread.website;
+        const stat = statistics_get(website, board);
+        const speed = stat.speed;
+        const replies = thread.replies;
+        const threshold = stat.threshold;
+        const replies_rel = intrapolate(0, threshold, replies);
+        const replies_rel_capped = Math.min(1, replies_rel);
+        return Math.log(speed) * replies_rel_capped;
     }
 
     function get_thread_filter_text(thread) {
@@ -694,15 +717,15 @@
     var positive_filter_regex = null;
     var neg_filter_regex = null;
     var is_search_mode = false;
-    const default_boards = ["pol%1", "bant%1", "g%2", "sci", "lit", "h", "cm", "gif", "wsg", "wsr",
-                            "2ch:b%1", "2ch:zog%2", "2ch:rf", "2ch:soc",
+    const default_boards = ["pol", "bant", "g", "sci", "lit", "h", "cm", "gif", "wsg", "wsr",
+                            "2ch:b", "2ch:zog", "2ch:rf", "2ch:soc",
                             "lainchan:r", "lainchan:λ", "lainchan:tech", "lainchan:hum",
                             "wizardchan:lounge", "wizardchan:hob", "wizardchan:wiz",
                             "9chan:b",
                            ];
     var boards_map = {};
     var boards_perc = {};
-    var boards_default_perc = 3;
+    var boards_default_perc = 0.1;
 
     function init_boards_map(board_string) {
         const list = board_string.trim().split(' ');
@@ -885,11 +908,12 @@
             return false;
         }
 
-        if (has_many_replies_q(thread)) {
-            return true;
-        }
+        // if (has_many_replies_q(thread)) {
+        //     return true;
+        // }
 
-        return false;
+        return true;
+        // return false;
     }
 
     var to_redraw_threads = [];
@@ -913,24 +937,33 @@
         }
         console.info(`There are ${to_load_threads.length} ok threads`, count_stat);
 
-        sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
+        // sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
+        sorted_threads = to_load_threads.sort((a, b) => compare_numbers(get_thread_rating(a), get_thread_rating(b)));
 
-        await Promise.all(to_load_threads.map(load_thread_posts));
+        // await Promise.all(to_load_threads.map(load_thread_posts));
+        // console.info("Loaded all of them");
 
-        console.info("Loaded all of them");
-
-        refilter_and_redraw();
+        await refilter_and_redraw();
     }
 
-    function refilter_and_redraw() {
+    async function refilter_and_redraw() {
         to_redraw_threads = [];
 
+        var i = 0;
         for (const thread of sorted_threads) {
             if (ok_thread_q(thread)) {
-                to_redraw_threads.push(thread);
-                if (to_redraw_threads.length >= max_threads_per_page) { break; }
+                i++;
+                load_thread_posts(thread);
+                if (i <= max_threads_per_page) {
+                    to_redraw_threads.push(thread);
+                }
+                if (i >= 2 * (5 + max_threads_per_page)) {
+                    break;
+                }
             }
         }
+
+        await Promise.all(to_redraw_threads.map(load_thread_posts));
 
         redraw();
     }
