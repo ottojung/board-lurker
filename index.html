@@ -76,6 +76,16 @@
         console.info(`Speed of /${make_board_code(website, board)}/ is ${speed_view}. The number of threads is ${stat.ring.length}. The threshold is ${stat.threshold}`);
     }
 
+    function get_min_speed() {
+        const stats = Object.entries(thread_statistics);
+        return stats.map(([board, stat]) => stat.speed).filter(x => typeof x == 'number').reduce((a, b) => Math.min(a, b), 999999999999999999);
+    }
+
+    function get_max_speed() {
+        const stats = Object.entries(thread_statistics);
+        return stats.map(([board, stat]) => stat.speed).filter(x => typeof x == 'number').reduce((a, b) => Math.max(a, b), 0);
+    }
+
     function intrapolate(start, end, y) {
         return (y - start) / (end - start);
     }
@@ -84,12 +94,27 @@
         const board = thread.board;
         const website = thread.website;
         const stat = statistics_get(website, board);
+
         const speed = stat.speed;
+        const min_speed = get_min_speed();
+        const max_speed = get_max_speed();
+        const speed_rel = intrapolate(0, max_speed, speed)
+
         const replies = thread.replies;
         const threshold = stat.threshold;
         const replies_rel = intrapolate(0, threshold, replies);
         const replies_rel_capped = Math.min(1, replies_rel);
-        return Math.log(speed) * replies_rel_capped;
+
+        const now = Date.now() / 1000;
+        const yesterday = now - (3 * 24 * 60 * 60);
+        const now_rounded = Math.round(now / (10 * 60));
+        const time_min_rounded = Math.round(yesterday / (10 * 60));
+        const time_rounded = Math.round(thread.time / (10 * 60));
+        const time = intrapolate(time_min_rounded, now_rounded, time_rounded);
+
+        const repl_speed_factor = Math.pow(speed_rel, 1/3) * replies_rel_capped;
+        const time_factor = time;
+        return repl_speed_factor * time_factor;
     }
 
     function get_thread_filter_text(thread) {
