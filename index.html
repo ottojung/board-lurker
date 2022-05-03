@@ -111,7 +111,7 @@
         const replies_rel_capped = Math.min(1, replies_rel);
 
         const now = Date.now() / 1000;
-        const yesterday = now - (3 * 24 * 60 * 60);
+        const yesterday = now - (30 * 24 * 60 * 60);
         const now_rounded = Math.round(now / (10 * 60));
         const time_min_rounded = Math.round(yesterday / (10 * 60));
         const time_rounded = Math.round(thread.time / (10 * 60));
