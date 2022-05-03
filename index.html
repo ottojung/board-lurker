@@ -121,10 +121,9 @@
         const speed_top = Math.E * 10000;
         const speed_int = interpolate(1, speed_top, speed_rel);
         const speed_factor = Math.log(speed_int) / Math.log(speed_top);
-        // const speed_factor = Math.sqrt(speed_rel, 1/1000);
         const time_factor = time;
-        // const time_factor = 1;
-        return repl_factor * speed_factor * time_factor;
+        const filter_factor = is_positively_filtered(thread) ? 1 : 0;
+        return filter_factor + repl_factor * speed_factor * time_factor;
     }
 
     function get_thread_filter_text(thread) {
