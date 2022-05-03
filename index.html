@@ -25,7 +25,7 @@
   <script>
 
     const thread_statistics = {};
-    const statistics_span = 50;
+    const statistics_span = 128;
 
     function statistics_get(website, board) {
         const board_code = make_board_code(website, board);
@@ -63,8 +63,9 @@
         // stat.max = stat.ring.reduce((acc, cur) => Math.max(acc, cur.replies), 0);
         stat.sorted = stat.ring.sort((a, b) => compare_numbers(b.replies, a.replies));
         const len = stat.ring.length;
-        const perc = 1 - boards_perc[website + board];
-        const threshold_index = Math.round(perc * (len - 1));
+        // const perc = 1 - boards_perc[website + board];
+        // const threshold_index = Math.round(perc * (len - 1));
+        const threshold_index = stat.sorted.length - 1;
         const threshold_thread = stat.sorted[threshold_index];
         stat.threshold = threshold_thread?.replies;
         const times = stat.ring.map((t) => t.time).filter((n) => typeof(n) == 'number');
@@ -90,6 +91,10 @@
         return (y - start) / (end - start);
     }
 
+    function interpolate(start, end, t) {
+        return start * (1 - t) + end * (t);
+    }
+
     function get_thread_rating(thread) {
         const board = thread.board;
         const website = thread.website;
@@ -112,9 +117,14 @@
         const time_rounded = Math.round(thread.time / (10 * 60));
         const time = intrapolate(time_min_rounded, now_rounded, time_rounded);
 
-        const repl_speed_factor = Math.pow(speed_rel, 1/2) * replies_rel_capped;
+        const repl_factor = replies_rel_capped;
+        const speed_top = Math.E * 10000;
+        const speed_int = interpolate(1, speed_top, speed_rel);
+        const speed_factor = Math.log(speed_int) / Math.log(speed_top);
+        // const speed_factor = Math.sqrt(speed_rel, 1/1000);
         const time_factor = time;
-        return repl_speed_factor * time_factor;
+        // const time_factor = 1;
+        return repl_factor * speed_factor * time_factor;
     }
 
     function get_thread_filter_text(thread) {
@@ -951,8 +961,6 @@
         for (const [k, thread] of Object.entries(all_threads)) {
             if (ok_thread_q(thread)) {
                 to_load_threads.push(thread);
-                const current = count_stat[thread.board] ?? 0;
-                count_stat[thread.board] = current + 1;
                 if (is_positively_filtered(thread)) {
                     thread.cache.posts_list = null;
                 }
@@ -960,10 +968,15 @@
                 thread.cache = {};
             }
         }
-        console.info(`There are ${to_load_threads.length} ok threads`, count_stat);
 
         // sorted_threads = to_load_threads.sort((a, b) => compare_numbers(a.time, b.time));
         sorted_threads = to_load_threads.sort((a, b) => compare_numbers(get_thread_rating(a), get_thread_rating(b)));
+
+        for (const thread of sorted_threads.slice(0, 100)) {
+            const current = count_stat[thread.board] ?? 0;
+            count_stat[thread.board] = current + 1;
+        }
+        console.info(`There are ${to_load_threads.length} ok threads`, count_stat);
 
         // await Promise.all(to_load_threads.map(load_thread_posts));
         // console.info("Loaded all of them");
