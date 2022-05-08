@@ -594,16 +594,21 @@
 </div>`);
     }
 
-    function display_op_post(thread) {
-        const first = thread.cache.posts_list[0];
-        var op_post = null;
-        if (first.no == thread.no) {
-            op_post = first;
-        } else {
-            op_post = thread;
+    function thread_get_op_post(thread) {
+        if (!thread.op_post) {
+            const first = thread.cache.posts_list[0];
+            if (first.no == thread.no) {
+                thread.op_post = first;
+            } else {
+                thread.op_post = thread;
+            }
         }
 
-        display_post(true, thread, op_post);
+        return thread.op_post;
+    }
+
+    function display_op_post(thread) {
+        display_post(true, thread, thread_get_op_post(thread));
     }
 
     function display_reply_post(thread, post) {
