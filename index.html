@@ -120,8 +120,8 @@
         const repl_factor = replies_rel_capped;
         const speed_factor = speed_rel;
         const time_factor = time;
-        const filter_factor = is_positively_filtered(thread) ? 10 : 0;
-        return filter_factor + repl_factor + speed_factor * 2 + time_factor;
+        const filter_factor = is_positively_filtered(thread) ? 100 : 0;
+        return filter_factor + repl_factor + repl_factor * speed_factor * 10 + time_factor;
     }
 
     function get_thread_filter_text(thread) {
