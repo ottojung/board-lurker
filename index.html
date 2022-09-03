@@ -616,7 +616,7 @@
     function more_button_click(website, board, thread_no) {
         const thread = all_threads[website + board + thread_no];
         const current = thread.replies_to_display || replies_to_display;
-        thread.replies_to_display = current + 5;
+        thread.replies_to_display = current + 50;
         thread.cache.html = null;
         redraw();
     }
