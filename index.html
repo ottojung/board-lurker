@@ -123,11 +123,6 @@
         <!-- const time_norm = time; //Math.pow(interpolate(1, 1.0001, time), 1) - 1; -->
         const time_norm = Math.pow(time, 1/10);
 
-        if (thread.board == "hob" || thread.board == "pol") {
-          const board = thread.board;
-          console.log({board, time_norm});
-        }
-
         const repl_factor = replies_norm;
         <!-- const repl_factor = 1; -->
         const speed_factor = speed_norm;
