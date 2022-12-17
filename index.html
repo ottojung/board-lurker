@@ -210,12 +210,14 @@
 
     async function get_threads(website, board) {
         var json = {};
+        var text = null;
         try {
             const response = await fetch(get_website_thread_url(website, board));
-            const json0 = await response.json();
+            text = await response.text();
+            const json0 = JSON.parse(text);
             json = transform_get_threads_response(website, json0);
         } catch (ex) {
-            console.error("error getting threads", { board, ex });
+            console.error("error getting threads", { board, ex, text });
             return null;
         }
 
