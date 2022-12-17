@@ -560,6 +560,8 @@
         var subject0 = post.sub ? `<span class="subject">${post.sub.toString()}</span>` : '';
         var subject = op_q ? subject0 : pad_right(50, '-', subject0);
         var deleteButton = op_q ? `<input type="button" id=${thread_id} value="delete" onclick="delete_button_click('${thread.website}', '${board}', ${thread_id})"/>` : '';
+        var filterButton = op_q ? `<input type="button" value="filter" onclick="togglefilter()"/>` : '';
+
         var boardTag = op_q ? `<b style='color:blue'> /${board_code}/ </b>` : '';
         var replies_count = op_q ? thread.replies : post.my_replies_count;
         var replyCount = replies_count ? `<span class="nameBlock"> (${replies_count}) </span>` : '';
@@ -588,6 +590,9 @@
         </span>
         <span class="post__detailpart">
           ${subject}
+        </span>
+        <span class="post__filterpart">
+          ${filterButton}
         </span>
       </div>
       ${files}
@@ -1087,8 +1092,5 @@
     <input id="my_boards_list" placeholder="Boads list" submit=""/>
     </br></br>
   </div>
-
-  <input type="button" value="filter" onclick="togglefilter()"/>
-  <div id="posts-form">
-  </div>
+  <div id="posts-form"></div>
 </body>
