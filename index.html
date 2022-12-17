@@ -389,7 +389,7 @@
         switch (board) {
         case "b":
         case "bant":
-            return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+            return `https://thebarchive.com/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}`;
         case "pol":
         case "adv":
         case "f":
@@ -402,9 +402,9 @@
         case "trv":
         case "tv":
         case "x":
-            return `https://4plebs.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+            return `https://4plebs.org/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}`;
         default:
-            return `https://archived.moe/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}"`;
+            return `https://archived.moe/${board.toString()}/thread/${thread_id.toString()}/#p${post_id.toString()}`;
             // https://desuarchive.org/
         }
     }
@@ -643,7 +643,7 @@
 </div>`);
     }
 
-    const generic_responses_regex = /href="[^ "]*#[a-zA-Z]*(\d+)"/g;
+    const generic_responses_regex = /href="[^ ""]*#[a-zA-Z]*(\d+)"/g;
 
     function rank_posts_map(website, obj) {
         const regex = generic_responses_regex;
@@ -663,8 +663,8 @@
         }
     }
 
-    const local_link_regex = /href="(\/[^ "]+)"/g;
-    const hash_link_regex = /href="(#[^ "]+)"/g;
+    const local_link_regex = /href="(\/[^ ""]+)"/g;
+    const hash_link_regex = /href="(#[^ ""]+)"/g;
 
     function relink_post(thread, post) {
         function local_relinker(match, p1, offset, string) {
@@ -1074,6 +1074,7 @@
   <input id="my_boards_list" placeholder="Boads list" submit=""/>
   </br></br>
 
+  <input type="button" value="filter" onclick="togglefilter()"/>
   <div id="posts-form">
   </div>
 </body>
