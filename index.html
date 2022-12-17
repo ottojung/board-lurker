@@ -1048,6 +1048,18 @@
         reload_and_redraw();
     }
 
+    function togglefilter() {
+        var element = document.getElementById("filterdiv");
+        var kek = element.style.display;
+        console.log({kek});
+
+        if (element.style.display == "none") {
+            element.style.display = "";
+        } else {
+            element.style.display = "none";
+        }
+    }
+
     function main() {
         main_loop().then(_ => setTimeout(main, 10 * 60 * 1000));
     }
@@ -1064,15 +1076,17 @@
 </head>
 
 <body class="is_thread board_b yotsuba_new nws">
-  <textarea rows="5" cols="60" id="my_filter" placeholder="
+  <div id="filterdiv" style="display: none">
+    <textarea rows="5" cols="60" id="my_filter" placeholder="
  Positive filter RegEx here.
  Multiple lines will be counted as alternatives." submit=""/></textarea>
-  <textarea rows="5" cols="60" id="my_neg_filter" placeholder="
+    <textarea rows="5" cols="60" id="my_neg_filter" placeholder="
  Negative filter RegEx here.
  Multiple lines will be counted as alternatives." submit=""/></textarea>
-  <p> List of boards </p>
-  <input id="my_boards_list" placeholder="Boads list" submit=""/>
-  </br></br>
+    <p> List of boards </p>
+    <input id="my_boards_list" placeholder="Boads list" submit=""/>
+    </br></br>
+  </div>
 
   <input type="button" value="filter" onclick="togglefilter()"/>
   <div id="posts-form">
